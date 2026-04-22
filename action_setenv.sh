@@ -2,6 +2,7 @@
 
 function set_env() { echo "$1=$2" >> $GITHUB_ENV; }
 
+APP_NAME="legado"
 APP_BRANCHME="master"
 APP_GIT_URL="https://gitee.com/cyh92/legado.git"
 APP_SUFFIX="A"
