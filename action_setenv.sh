@@ -2,13 +2,16 @@
 
 function set_env() { echo "$1=$2" >> $GITHUB_ENV; }
 
-APP_NAME="legado"
+APP_BRANCHME="master"
 APP_GIT_URL="https://gitee.com/cyh92/legado.git"
 APP_SUFFIX="A"
 APP_CHANNEL="App"
-if [ "$SECRETS_ENABLE" == "true" ] && [ -n "$SECRETS_APP_NAME" ] && [ -n "$SECRETS_GIT_URL" ] && [ "$REPO_ACTOR" == "$REPO_OWNER" ]; then
-    APP_NAME=$SECRETS_APP_NAME
+if [ -n "$SECRETS_GIT_URL" ] && [ "$REPO_ACTOR" == "$REPO_OWNER" ]; then
     APP_GIT_URL=$SECRETS_GIT_URL
+fi
+
+if [ -n "$SECRETS_BRANCH" ] && [ "$REPO_ACTOR" == "$REPO_OWNER" ]; then
+    APP_BRANCHME=$SECRETS_BRANCH
 fi
 
 if [ -n "$SECRETS_SUFFIX" ] && [ "$REPO_ACTOR" == "$REPO_OWNER" ]; then
@@ -34,7 +37,8 @@ set_env APP_CHANNEL     $APP_CHANNEL
 set_env APP_LAUNCH_NAME $APP_LAUNCH_NAME
 set_env APP_WORKSPACE   $APP_WORKSPACE
 set_env APP_SUFFIX      $APP_SUFFIX      
-set_env APP_GIT_URL     $APP_GIT_URL
+set_env APP_GIT_URL     $APP_GIT_URL   
+set_env APP_BRANCHME     $APP_BRANCHME
 set_env APP_UPLOAD_NAME $APP_UPLOAD_NAME
 set_env APP_UPLOAD      $APP_UPLOAD
 set_env REPO_ACTOR      $REPO_ACTOR
