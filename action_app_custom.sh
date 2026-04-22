@@ -108,8 +108,8 @@ function app_remove_unused() {
 # === 调用所有步骤 ===
 app_sign
 app_clear_18plus
-app_rename
-app_enable_coexist
+# app_rename
+# app_enable_coexist
 app_patch_room_assets
 app_minify
 app_disable_plugins
