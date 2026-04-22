@@ -31,7 +31,7 @@ jobs:
           SECRETS_CHANNEL: "App"
           SECRETS_SUFFIX: "Pro"
           SECRETS_LAUNCH_NAME: "阅读.Pro"
-          SECRETS_RENAME: "false"
+          SECRETS_RENAME: "true"
           SECRETS_MINIFY: "false"
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_ACTOR: ${{ github.actor }}
