@@ -4,7 +4,7 @@ source $GITHUB_WORKSPACE/action_util.sh
 #建立工作目录
 function init_workspace()
 {
-    git clone -b $APP_BRANCHME$APP_GIT_URL $APP_WORKSPACE
+    git clone -b $APP_BRANCHME $APP_GIT_URL $APP_WORKSPACE
     cd $APP_WORKSPACE
     LatestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
    
