@@ -3,7 +3,7 @@
 function set_env() { echo "$1=$2" >> $GITHUB_ENV; }
 
 APP_NAME="legado"
-APP_GIT_URL="https://github.com/gedoor/legado.git"
+APP_GIT_URL="https://gitee.com/cyh92/legado.git"
 APP_SUFFIX="A"
 APP_CHANNEL="App"
 if [ "$SECRETS_ENABLE" == "true" ] && [ -n "$SECRETS_APP_NAME" ] && [ -n "$SECRETS_GIT_URL" ] && [ "$REPO_ACTOR" == "$REPO_OWNER" ]; then
