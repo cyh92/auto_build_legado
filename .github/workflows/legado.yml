@@ -2,6 +2,15 @@ name: 构建阅读.Pro APK
 
 on:
   workflow_dispatch:  # 允许手动触发
+    inputs:
+      defaultBranch:
+        description: '使用分支'
+        required: true
+        default: 'legado-dev'  
+        type: choice
+        options:
+          - legado-dev
+          - master
   push:
     paths:
       - '.last_upstream_commit'  # 当检测到上游更新时触发
