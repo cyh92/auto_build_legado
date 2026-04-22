@@ -21,7 +21,7 @@ jobs:
         run: |
           set -e
 
-          LATEST_COMMIT=$(git ls-remote https://gitee.com/cyh92/legado.git refs/heads/master | cut -f1)
+          LATEST_COMMIT=$(git ls-remote https://gitee.com/cyh92/legado.git refs/heads/legado-dev | cut -f1)
           echo "最新上游提交: $LATEST_COMMIT"
 
           if [ -f .last_upstream_commit ]; then
