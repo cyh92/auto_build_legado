@@ -1,6 +1,9 @@
 #!/bin/sh
 #本脚本用来clone远端仓库
 source $GITHUB_WORKSPACE/action_util.sh
+echo $APP_BRANCHME
+echo $APP_GIT_URL
+echo $APP_WORKSPACE
 #建立工作目录
 function init_workspace()
 {
