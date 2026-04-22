@@ -26,7 +26,7 @@ jobs:
       - name: 设置构建参数
         shell: bash
         env:
-          SECRETS_APP_NAME: "阅读"
+          SECRETS_APP_NAME: "阅读x"
           SECRETS_GIT_URL: "https://gitee.com/cyh92/legado.git"
           SECRETS_CHANNEL: "App"
           SECRETS_SUFFIX: "Pro"
