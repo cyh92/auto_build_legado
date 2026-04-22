@@ -27,7 +27,7 @@ jobs:
         shell: bash
         env:
           SECRETS_APP_NAME: "阅读"
-          SECRETS_GIT_URL: "https://github.com/gedoor/legado.git"
+          SECRETS_GIT_URL: "https://gitee.com/cyh92/legado.git"
           SECRETS_CHANNEL: "App"
           SECRETS_SUFFIX: "Pro"
           SECRETS_LAUNCH_NAME: "阅读.Pro"
@@ -43,22 +43,22 @@ jobs:
         run: |
           source $GITHUB_WORKSPACE/action_clone.sh
 
-      - name: 替换直链配置
-        shell: bash
-        run: |
-          mkdir -p $APP_WORKSPACE/app/src/main/assets/defaultData
-          cp $GITHUB_WORKSPACE/diy/directLinkUpload.json \
-          $APP_WORKSPACE/app/src/main/assets/defaultData/directLinkUpload.json
+      #- name: 替换直链配置
+      #  shell: bash
+      #  run: |
+      #    mkdir -p $APP_WORKSPACE/app/src/main/assets/defaultData
+      #    cp $GITHUB_WORKSPACE/diy/directLinkUpload.json \
+      #    $APP_WORKSPACE/app/src/main/assets/defaultData/directLinkUpload.json
 
       - name: 自定义应用（阅读.A, 共存包）
         shell: bash
         run: |
           source $GITHUB_WORKSPACE/action_app_custom.sh
 
-      - name: （图标 / 默认配置 / JS 增强）
-        shell: bash
-        run: |
-          source $GITHUB_WORKSPACE/action_legado_myself.sh
+      #- name: （图标 / 默认配置 / JS 增强）
+      #  shell: bash
+      #  run: |
+      #    source $GITHUB_WORKSPACE/action_legado_myself.sh
 
       - name: 编译 APK（Release 版本）
         shell: bash
