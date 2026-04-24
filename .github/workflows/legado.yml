@@ -2,7 +2,15 @@ name: 构建阅读.Pro APK
 
 on:
   workflow_dispatch:  # 允许手动触发
-    inputs:
+    inputs: 
+      defaultUrl:
+        description: '使用仓库'
+        required: true
+        default: 'https://gitee.com/cyh92/legado.git'  
+        type: choice
+        options:
+          - https://gitee.com/cyh92/legado.git
+          - https://gitee.com/cyh92/legado-with-MD3
       defaultBranch:
         description: '使用分支'
         required: true
