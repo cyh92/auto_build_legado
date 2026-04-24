@@ -19,6 +19,7 @@ on:
         options:
           - legado-dev
           - master
+          - main
   push:
     paths:
       - '.last_upstream_commit'  # 当检测到上游更新时触发
@@ -44,7 +45,7 @@ jobs:
         shell: bash
         env:
           SECRETS_APP_NAME: "阅读x"
-          SECRETS_GIT_URL: "https://gitee.com/cyh92/legado.git"
+          SECRETS_GIT_URL: ${{ github.event.inputs.defaultUrl }}
           SECRETS_BRANCH: ${{ github.event.inputs.defaultBranch }}
           SECRETS_CHANNEL: "App"
           SECRETS_SUFFIX: "Pro"
