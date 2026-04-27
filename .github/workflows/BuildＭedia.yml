@@ -41,11 +41,15 @@ jobs:
         id: date
         run: echo "datetime=$(date +%Y%m%d%H%M%S%3N)" >> $GITHUB_OUTPUT
 
-      # 关键：自动收集 media/libraries 下 任意层级 的所有 *release.aar
-      - name: Collect all release AAR files
+      # ✅ 关键：只收集 move.txt 中列出的 AAR，不在列表里的不收集
+      - name: Collect only AAR in move.txt
         run: |
           mkdir -p release_aars
-          find ./libraries -name "*release.aar" -type f -exec cp {} release_aars/ \;
+          while IFS= read -r aar_name || [ -n "$aar_name" ]; do
+            aar_name=$(echo "$aar_name" | xargs)
+            if [ -z "$aar_name" ]; then continue; fi
+            find ./libraries -name "$aar_name" -type f -exec cp {} release_aars/ \;
+          done < move.txt
 
       - name: Create Release and Upload ALL AAR
         uses: softprops/action-gh-release@v2
