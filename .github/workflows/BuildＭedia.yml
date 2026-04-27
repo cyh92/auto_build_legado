@@ -1,4 +1,4 @@
-name: Build & Release AAR
+name: Build Media3 & Release AAR
 
 # ======================= 【可修改变量】 =======================
 env:
@@ -48,6 +48,6 @@ jobs:
       - name: Create Release and Upload ALL AAR
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-${{ github.run_number }}
-          name: Release AAR ${{ github.run_number }}
+          tag_name: build-Media3-${{ github.run_number }}
+          name: Release AAR Media3${{ github.run_number }}
           files: release_aars/*.aar
