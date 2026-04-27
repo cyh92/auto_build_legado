@@ -51,9 +51,19 @@ jobs:
             find ./libraries -name "$aar_name" -type f -exec cp {} release_aars/ \;
           done < move.txt
 
-      - name: Create Release and Upload ALL AAR
+      # 2. 打包 ZIP
+      - name: Zip all AARs
+        run: |
+          cd release_aars
+          zip -q -r Media3-AARs.zip *.aar
+          mv Media3-AARs.zip ../
+
+      # 3. 同时上传：ZIP 压缩包 + 所有单独 AAR 文件
+      - name: Create Release and Upload All
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-Media3-${{ steps.date.outputs.datetime }}
           name: Release AAR Media3-${{ steps.date.outputs.datetime }}
-          files: release_aars/*.aar
+          files: |
+            Media3-AARs.zip
+            release_aars/*.aar
