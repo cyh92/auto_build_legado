@@ -1,16 +1,13 @@
-name: Build & Release AAR
+name: Build & Release All Release AAR
 
-# ======================= 【可修改变量】 =======================
+# ======================= 【可配置变量】 =======================
 env:
-  REPO_URL: FongMi/media  # 仓库地址
-  TARGET_BRANCH: release-1.10.0-fongmi                         # 要编译的分支
-  AAR_PATH: media/build/outputs/aar/media-release.aar  # AAR 路径
+  REPO: FongMi/media
+  BRANCH: main
 # ==============================================================
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:  # 手动触发
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,9 +19,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.REPO_URL }}
-          ref: ${{ env.TARGET_BRANCH }}
-          fetch-depth: 1
+          repository: ${{ env.REPO }}
+          ref: ${{ env.BRANCH }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -36,13 +32,18 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
 
-      - name: Build Release AAR
+      - name: Build all Release AAR
         run: ./gradlew assembleRelease
 
-      - name: Upload to GitHub Release
+      # 关键：自动收集 media/libraries 下 任意层级 的所有 *release.aar
+      - name: Collect all release AAR files
+        run: |
+          mkdir -p release_aars
+          find media/libraries -name "*release.aar" -type f -exec cp {} release_aars/ \;
+
+      - name: Create Release and Upload ALL AAR
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
           name: Release AAR ${{ github.run_number }}
-          body: "自动编译：${{ env.REPO_URL }} (${{ env.TARGET_BRANCH }})"
-          files: ${{ env.AAR_PATH }}
+          files: release_aars/*.aar
