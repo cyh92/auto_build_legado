@@ -2,7 +2,7 @@ name: Build & Release AAR
 
 # ======================= 【可修改变量】 =======================
 env:
-  REPO_URL: https://github.com/FongMi/media.git  # 仓库地址
+  REPO_URL: FongMi/media  # 仓库地址
   TARGET_BRANCH: release-1.10.0-fongmi                         # 要编译的分支
   AAR_PATH: media/build/outputs/aar/media-release.aar  # AAR 路径
 # ==============================================================
