@@ -38,6 +38,10 @@ jobs:
 
       - name: Build Release AAR
         run: ./gradlew assembleRelease
+        
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
       # 关键：自动收集 media/libraries 下 任意层级 的所有 *release.aar
       - name: Collect all release AAR files
@@ -48,6 +52,6 @@ jobs:
       - name: Create Release and Upload ALL AAR
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-Media3-${{ github.run_number }}
-          name: Release AAR Media3${{ github.run_number }}
+          tag_name: build-Media3-${{ steps.date.outputs.date }}
+          name: Release AAR Media3-${{ steps.date.outputs.date }}
           files: release_aars/*.aar
