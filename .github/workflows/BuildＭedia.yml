@@ -43,7 +43,7 @@ jobs:
       - name: Collect all release AAR files
         run: |
           mkdir -p release_aars
-          find media/libraries -name "*release.aar" -type f -exec cp {} release_aars/ \;
+          find ./libraries -name "*release.aar" -type f -exec cp {} release_aars/ \;
 
       - name: Create Release and Upload ALL AAR
         uses: softprops/action-gh-release@v2
