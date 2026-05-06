@@ -62,7 +62,7 @@ jobs:
         if: ${{ inputs.copy_to_oktv == true }}
         run: |
           cd ..
-          git clone -b fm-new https://gitee.com/cyh92/ok-tv.git ok-tv-repo
+          git clone -b fm-new https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/ok-tv.git ok-tv-repo
           cd ok-tv-repo
           
           # 复制AAR
