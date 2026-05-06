@@ -2,7 +2,7 @@ name: 清理Actions
 on:
   workflow_dispatch:
    schedule:
-     - cron: 0 */3 * * *
+     - cron: 0 0 */3 * *
 
 jobs:
   del_runs:
@@ -14,4 +14,4 @@ jobs:
           token: ${{ secrets.MY_GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           retain_days: 0
-          keep_minimum_runs: 0  # 保留每个工作流的最近 5 次运行记录
+          keep_minimum_runs: 3  # 保留每个工作流的最近 5 次运行记录
