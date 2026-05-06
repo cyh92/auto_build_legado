@@ -9,6 +9,12 @@ env:
 
 on:
   workflow_dispatch:  # 手动触发
+   inputs:
+      copy_to_oktv:  # 复选框名称
+        description: '是否更新源仓库'
+        required: true
+        default: false
+        type: boolean  # 复选框
 
 permissions:
   contents: write
@@ -51,6 +57,20 @@ jobs:
             find ./libraries -name "$aar_name" -type f -exec cp {} release_aars/ \;
           done < move.txt
 
+# ====================== 合并为一步 + 复选框控制 ======================
+      - name: Clone & Copy AAR to ok-tv app/libs
+        if: ${{ inputs.copy_to_oktv == true }}  # 勾选才执行
+        run: |
+          echo "🔹 开始克隆 ok-tv fm-new 分支..."
+          cd ..
+          git clone -b fm-new https://gitee.com/cyh92/ok-tv.git ok-tv-repo
+          
+          echo "🔹 复制 AAR 文件到 app/libs..."
+          cp -f ${{ github.workspace }}/release_aars/*.aar ok-tv-repo/app/libs/
+          
+          echo "✅ 复制完成，文件列表："
+          ls -la ok-tv-repo/app/libs/
+      # ====================================================================
       # 2. 打包 ZIP
       - name: Zip all AARs
         run: |
