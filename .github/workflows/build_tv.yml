@@ -1,0 +1,77 @@
+name: 手动编译 OK-TV 签名版 APK
+on:
+  workflow_dispatch:  # 仅手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # 1. 拉取 Gitee ok-tv 代码（fm-new 分支）
+      - name: 拉取 ok-tv 源码
+        uses: actions/checkout@v4
+        with:
+          repository: cyh92/ok-tv
+          ref: fm-new
+          path: ok-tv
+
+      # 2. 设置 JDK 17
+      - name: 设置 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      # 3. 注入签名配置（使用 ok-tv 根目录下的 fm-tv.jks）
+      - name: 配置 APK 签名
+        working-directory: ./ok-tv
+        run: |
+          cat >> app/build.gradle << EOF
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file("../fm-tv.jks")
+                      storePassword "123456"
+                      keyAlias "key0"
+                      keyPassword "123456"
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
+
+      # 4. 编译
+      - name: 构建 Release APK
+        working-directory: ./ok-tv
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      # 5. 获取 APK
+      - name: 获取 APK 路径
+        id: apk
+        working-directory: ./ok-tv
+        run: |
+          APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
+          echo "path=$APK_FILE" >> $GITHUB_OUTPUT
+
+      # 6. 上传到 Releases
+      - name: 发布到 GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: OK-TV 手动构建版
+          body: |
+            ✅ 手动编译
+            🔐 已使用 fm-tv.jks 签名
+            🌿 分支：fm-new
+          files: ok-tv/${{ steps.apk.outputs.path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
