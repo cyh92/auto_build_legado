@@ -3,8 +3,8 @@
 function set_env() { echo "$1=$2" >> $GITHUB_ENV; }
 
 APP_NAME="legado"
-APP_BRANCHME="master"
-APP_GIT_URL="https://gitee.com/cyh92/legado.git"
+APP_BRANCHME="main"
+APP_GIT_URL="https://github.com/cyh92/legado.git"
 APP_SUFFIX="A"
 APP_CHANNEL="App"
 if [ -n "$SECRETS_GIT_URL" ] && [ "$REPO_ACTOR" == "$REPO_OWNER" ]; then
