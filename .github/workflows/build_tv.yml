@@ -1,6 +1,6 @@
-name: 手动编译 OK-TV 签名版 APK
+name: 手动编译 OK-TV 签名版 APK (Gitee new-fm)
 on:
-  workflow_dispatch:  # 仅手动触发
+  workflow_dispatch:
 
 jobs:
   build:
@@ -9,13 +9,10 @@ jobs:
       contents: write
 
     steps:
-      # 1. 拉取 Gitee ok-tv 代码（fm-new 分支）
-      - name: 拉取 ok-tv 源码
-        uses: actions/checkout@v4
-        with:
-          repository: cyh92/ok-tv
-          ref: fm-new
-          path: ok-tv
+      # 1. 直接用 git clone 拉取 Gitee 仓库（彻底修复来源问题）
+      - name: 克隆 Gitee ok-tv 代码 (new-fm 分支)
+        run: |
+          git clone -b new-fm https://gitee.com/cyh92/ok-tv.git ok-tv
 
       # 2. 设置 JDK 17
       - name: 设置 JDK 17
@@ -25,7 +22,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 3. 注入签名配置（使用 ok-tv 根目录下的 fm-tv.jks）
+      # 3. 配置签名（使用 ok-tv 根目录下的 fm-tv.jks）
       - name: 配置 APK 签名
         working-directory: ./ok-tv
         run: |
@@ -67,11 +64,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: OK-TV 手动构建版
+          name: OK-TV 手动构建版 (Gitee new-fm)
           body: |
-            ✅ 手动编译
+            ✅ 手动编译完成
             🔐 已使用 fm-tv.jks 签名
-            🌿 分支：fm-new
+            🌿 分支：new-fm
+            📦 源码：https://gitee.com/cyh92/ok-tv.git
           files: ok-tv/${{ steps.apk.outputs.path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
