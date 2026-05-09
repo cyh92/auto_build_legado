@@ -14,7 +14,7 @@ on:
       defaultBranch:
         description: '使用分支'
         required: true
-        default: 'legado-dev'  
+        default: 'new-leg'  
         type: choice
         options:
           - legado-dev
