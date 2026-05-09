@@ -20,6 +20,7 @@ on:
           - legado-dev
           - master
           - main
+          - new-leg
   push:
     paths:
       - '.last_upstream_commit'  # 当检测到上游更新时触发
