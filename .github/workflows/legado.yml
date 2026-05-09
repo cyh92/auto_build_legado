@@ -75,10 +75,10 @@ jobs:
         run: |
           source $GITHUB_WORKSPACE/action_app_custom.sh
 
-      #- name: （图标 / 默认配置 / JS 增强）
-      #  shell: bash
-      #  run: |
-      #    source $GITHUB_WORKSPACE/action_legado_myself.sh
+      - name: （图标 / 默认配置 / JS 增强）
+        shell: bash
+        run: |
+          source $GITHUB_WORKSPACE/action_legado_myself.sh
 
       - name: 编译 APK（Release 版本）
         shell: bash
