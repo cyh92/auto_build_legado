@@ -100,6 +100,6 @@ if [[ "$APP_NAME" == "legado" ]] && [[ "$REPO_ACTOR" == "10bits" ]]; then
     explore_can_search;
     no_google_services;
     #rhino_safe_js;
-    my_launcher_icon;
+    #my_launcher_icon;
     #quick_checkSource;
 fi
