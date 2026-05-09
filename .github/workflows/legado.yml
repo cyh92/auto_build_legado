@@ -10,7 +10,7 @@ on:
         type: choice
         options:
           - https://gitee.com/cyh92/legado.git
-          - https://gitee.com/cyh92/legado-with-MD3
+          - https://github.com/cyh92/legado.git
       defaultBranch:
         description: '使用分支'
         required: true
