@@ -57,7 +57,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Release AAR
-        run: ./gradlew libraries:assembleRelease
+        run: |
+          for module in $(find ./libraries -mindepth 1 -maxdepth 1 -type d); do
+            module_name=$(basename "$module")
+            ./gradlew ":$module_name:assembleRelease"
+          done
         
       - name: Get current date
         id: date
