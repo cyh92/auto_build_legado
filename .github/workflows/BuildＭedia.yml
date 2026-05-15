@@ -57,7 +57,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Release AAR
-        run: ./gradlew assembleRelease
+        run: ./gradlew libraries:assembleRelease
         
       - name: Get current date
         id: date
