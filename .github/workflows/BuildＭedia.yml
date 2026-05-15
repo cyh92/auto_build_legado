@@ -60,7 +60,7 @@ jobs:
         run: |
           for module in $(find ./libraries -mindepth 1 -maxdepth 1 -type d); do
             module_name=$(basename "$module")
-            ./gradlew ":$module_name:assembleRelease"
+            ./gradlew assembleRelease -x :test-proguard:assembleRelease
           done
         
       - name: Get current date
