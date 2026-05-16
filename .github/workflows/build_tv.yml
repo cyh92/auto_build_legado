@@ -58,8 +58,10 @@ jobs:
       - name: 发布到 GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-${{ github.run_number }}
-          name: OK-TV 手动构建版 (Gitee new-fm)
+          # 标签：精确到秒（无特殊字符，最稳定）
+          tag_name: build--$(date +%Y%m%d%H%M%S)
+          # 标题：精确到秒，中文格式
+          name: OK-TV 手动构建版 $(date +%Y-%m-%d %H:%M:%S)
           body: |
             ✅ 手动编译完成
             🔐 已使用 fm-tv.jks 签名
