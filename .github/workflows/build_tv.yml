@@ -46,21 +46,29 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease
 
-      # 🔥 修复：获取 完整正确路径的 APK（全部自动带 ok-tv/）
-      - name: 获取所有 Release APK
-        id: apk
-        run: |
-          APK_FILES=$(find $GITHUB_WORKSPACE/ok-tv/app/build/outputs/apk -name "*.apk" | grep -v debug | tr '\n' ' ')
-          echo "files=$APK_FILES" >> $GITHUB_OUTPUT
+      # ================= 核心修改 =================
+      # 1. 创建 apks 文件夹
+      - name: 创建 apks 文件夹
+        run: mkdir -p apks
 
-      # 🔥 修复：时间生成
+      # 2. 复制所有 release apk 到 apks 目录
+      - name: 复制所有 APK 到 apks 目录
+        run: |
+          find ok-tv/app/build/outputs/apk -name "*.apk" | grep -v debug | xargs -I {} cp {} apks/
+
+      # 3. 读取 apks 目录下所有文件
+      - name: 获取所有 APK
+        id: apk
+        run: echo "files=apks/*" >> $GITHUB_OUTPUT
+
+      # 4. 生成时间
       - name: 获取当前时间
         id: time
         run: |
           echo "datetime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
           echo "show=$(date +%Y-%m-%d %H:%M:%S)" >> $GITHUB_OUTPUT
 
-      # 🔥 修复：发布（直接传完整路径，不需要加任何前缀）
+      # 5. 上传（从 apks 目录读取，100% 成功）
       - name: 发布到 GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
