@@ -67,6 +67,6 @@ jobs:
             🔐 已使用 fm-tv.jks 签名
             🌿 分支：new-fm
             📦 源码：https://gitee.com/cyh92/ok-tv.git
-          files: ok-tv/${{ steps.apk.outputs.path }}
+          files: ok-tv/${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
