@@ -22,26 +22,15 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 3. 配置签名（使用 ok-tv 根目录下的 fm-tv.jks）
+     # 3. 配置签名（写入 local.properties 文件）
       - name: 配置 APK 签名
         working-directory: ./ok-tv
         run: |
-          cat >> app/build.gradle << EOF
-          android {
-              signingConfigs {
-                  release {
-                      storeFile file("../fm-tv.jks")
-                      storePassword "123456"
-                      keyAlias "key0"
-                      keyPassword "123456"
-                  }
-              }
-              buildTypes {
-                  release {
-                      signingConfig signingConfigs.release
-                  }
-              }
-          }
+          cat >> local.properties << EOF
+          storeFile=fm-tv.jks
+          keyAlias=key0
+          storePassword=123456
+          keyPassword=123456
           EOF
 
       # 4. 编译
