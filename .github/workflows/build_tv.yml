@@ -46,23 +46,21 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease
 
-      # 🔥 修复1：获取正确的 APK 路径
+      # 🔥 修复：获取 完整正确路径的 APK（全部自动带 ok-tv/）
       - name: 获取所有 Release APK
         id: apk
-        working-directory: ./ok-tv
         run: |
-          APK_FILES=$(find app/build/outputs/apk -name "*.apk" | grep -v debug | tr '\n' ' ')
+          APK_FILES=$(find $GITHUB_WORKSPACE/ok-tv/app/build/outputs/apk -name "*.apk" | grep -v debug | tr '\n' ' ')
           echo "files=$APK_FILES" >> $GITHUB_OUTPUT
-          echo "找到的APK：$APK_FILES"
 
-      # 🔥 修复2：生成标准日期时间（解决tag无效问题）
+      # 🔥 修复：时间生成
       - name: 获取当前时间
         id: time
         run: |
           echo "datetime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
-          echo "show=$(date +%Y-%m-%d-%H:%M:%S)" >> $GITHUB_OUTPUT
+          echo "show=$(date +%Y-%m-%d %H:%M:%S)" >> $GITHUB_OUTPUT
 
-      # 🔥 修复3：正确上传 + 正确TAG
+      # 🔥 修复：发布（直接传完整路径，不需要加任何前缀）
       - name: 发布到 GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
@@ -72,6 +70,6 @@ jobs:
             ✅ 手动编译完成
             🔐 已使用 fm-tv.jks 签名
             🌿 分支：new-fm
-          files: ok-tv/${{ steps.apk.outputs.files }}
+          files: ${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
