@@ -51,7 +51,7 @@ jobs:
         id: apk
         working-directory: ./ok-tv
         run: |
-          APK_FILES=$(find app/build/outputs/apk -type f -name "*.apk" | grep -v debug | tr '\n' ' ')
+          APK_FILES=$(find app/build/outputs -type f -name "*.apk" | grep -v debug | tr '\n' ' ')
           echo "files=$APK_FILES" >> $GITHUB_OUTPUT
 
       # 6. 上传到 Releases
