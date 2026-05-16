@@ -51,8 +51,8 @@ jobs:
         id: apk
         working-directory: ./ok-tv
         run: |
-          APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
-          echo "path=$APK_FILE" >> $GITHUB_OUTPUT
+          APK_FILES=$(find app/build/outputs/apk -type f -name "*.apk" | grep -v debug | tr '\n' ' ')
+          echo "files=$APK_FILES" >> $GITHUB_OUTPUT
 
       # 6. 上传到 Releases
       - name: 发布到 GitHub Releases
