@@ -46,27 +46,32 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease
 
-      # 5. 获取 APK
-      - name: 获取 APK 路径
+      # 🔥 修复1：获取正确的 APK 路径
+      - name: 获取所有 Release APK
         id: apk
         working-directory: ./ok-tv
         run: |
-          APK_FILES=$(find app/build/outputs -type f -name "*.apk" | grep -v debug | tr '\n' ' ')
+          APK_FILES=$(find app/build/outputs/apk -name "*.apk" | grep -v debug | tr '\n' ' ')
           echo "files=$APK_FILES" >> $GITHUB_OUTPUT
+          echo "找到的APK：$APK_FILES"
 
-      # 6. 上传到 Releases
+      # 🔥 修复2：生成标准日期时间（解决tag无效问题）
+      - name: 获取当前时间
+        id: time
+        run: |
+          echo "datetime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+          echo "show=$(date +%Y-%m-%d-%H:%M:%S)" >> $GITHUB_OUTPUT
+
+      # 🔥 修复3：正确上传 + 正确TAG
       - name: 发布到 GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          # 标签：精确到秒（无特殊字符，最稳定）
-          tag_name: build--$(date +%Y%m%d%H%M%S)
-          # 标题：精确到秒，中文格式
-          name: OK-TV 手动构建版 $(date +%Y-%m-%d %H:%M:%S)
+          tag_name: build-${{ github.run_number }}-${{ steps.time.outputs.datetime }}
+          name: OK-TV 手动构建版 (Gitee new-fm) ${{ steps.time.outputs.show }}
           body: |
             ✅ 手动编译完成
             🔐 已使用 fm-tv.jks 签名
             🌿 分支：new-fm
-            📦 源码：https://gitee.com/cyh92/ok-tv.git
           files: ok-tv/${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
