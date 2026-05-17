@@ -32,7 +32,7 @@ jobs:
       - name: 配置 APK 签名
         working-directory: ./ok-tv
         run: |
-          cat >> local.properties << EOF
+          cat > local.properties << EOF
           storeFile=fm-tv.jks
           keyAlias=key0
           storePassword=123456
