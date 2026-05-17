@@ -1,6 +1,11 @@
 name: 手动编译 OK-TV 签名版 APK (Gitee)
 on:
   workflow_dispatch:
+    inputs:
+        branch:
+          description: '请输入要编译的分支名'
+          required: true
+          default: 'fm-new'
 
 jobs:
   build:
@@ -12,7 +17,7 @@ jobs:
       # 1. 直接用 git clone 拉取 Gitee 仓库（彻底修复来源问题）
       - name: 克隆 Gitee ok-tv 代码 (new-fm 分支)
         run: |
-          git clone -b fm-new https://gitee.com/cyh92/ok-tv.git ok-tv
+          git clone -b ${{ github.event.inputs.branch }} https://gitee.com/cyh92/ok-tv.git ok-tv
 
       # 2. 设置 JDK 17
       - name: 设置 JDK 17
@@ -81,7 +86,7 @@ jobs:
           body: |
             ✅ 手动编译完成
             🔐 已使用 fm-tv.jks 签名
-            🌿 分支：fm-new
+            🌿 分支：${{ github.event.inputs.branch }}
           files: ${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
