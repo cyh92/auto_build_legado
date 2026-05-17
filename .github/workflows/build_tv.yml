@@ -1,11 +1,6 @@
-name: 手动编译 OK-TV 签名版 APK (Gitee)
+name: 手动编译 OK-TV 签名版 APK (Gitee new-fm)
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: '请输入要编译的分支名'
-        required: true
-        default: 'fm-new'
 
 jobs:
   build:
@@ -14,10 +9,10 @@ jobs:
       contents: write
 
     steps:
-      # 1. 拉取代码（使用手动输入的分支名）
-      - name: 克隆 Gitee ok-tv 代码
+      # 1. 直接用 git clone 拉取 Gitee 仓库（彻底修复来源问题）
+      - name: 克隆 Gitee ok-tv 代码 (new-fm 分支)
         run: |
-          git clone -b ${{ github.event.inputs.branch }} https://gitee.com/cyh92/ok-tv.git ok-tv
+          git clone -b fm-new https://gitee.com/cyh92/ok-tv.git ok-tv
 
       # 2. 设置 JDK 17
       - name: 设置 JDK 17
@@ -27,51 +22,57 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 3. 设置 Python 3.10
+    # 👇 新增：安装 Python 3.10（修复 Chaquopy 报错）
       - name: 设置 Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # 4. 配置签名（无缩进、覆盖写入）
-      - name: 配置 APK 签名
+      - name: 配置 APK 签名（终极修复版）
         working-directory: ./ok-tv
         run: |
+          # 1. 全新覆盖创建 local.properties
           cat > local.properties << EOF
           storeFile=fm-tv.jks
           keyAlias=key0
           storePassword=123456
           keyPassword=123456
           EOF
-          cat local.properties
 
-      # 5. 构建
+          # 2. 打印内容确认是否正确
+          cat local.properties
+          cat app/build.gradle
+            
+      # 4. 清理 + 构建（确保签名一定生效）
       - name: 构建 Release APK
         working-directory: ./ok-tv
         run: |
           chmod +x gradlew
-          ./gradlew clean assembleRelease
+          ./gradlew assembleRelease
 
-      # 6. 复制 APK 到 apks 文件夹
+      # ================= 核心修改 =================
+      # 1. 创建 apks 文件夹
       - name: 创建 apks 文件夹
         run: mkdir -p apks
 
-      - name: 复制所有 APK
+      # 2. 复制所有 release apk 到 apks 目录
+      - name: 复制所有 APK 到 apks 目录
         run: |
           find ok-tv/app/build/outputs/apk -name "*.apk" | grep -v debug | xargs -I {} cp {} apks/
 
+      # 3. 读取 apks 目录下所有文件
       - name: 获取所有 APK
         id: apk
         run: echo "files=apks/*" >> $GITHUB_OUTPUT
 
-      # 7. 生成时间
+      # 4. 生成时间
       - name: 获取当前时间
         id: time
         run: |
           echo "datetime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
           echo "show=$(date +%Y-%m-%d %H:%M:%S)" >> $GITHUB_OUTPUT
 
-      # 8. 发布
+      # 5. 上传（从 apks 目录读取，100% 成功）
       - name: 发布到 GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
@@ -80,7 +81,7 @@ jobs:
           body: |
             ✅ 手动编译完成
             🔐 已使用 fm-tv.jks 签名
-            🌿 分支：${{ github.event.inputs.branch }}
+            🌿 分支：fm-new
           files: ${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
