@@ -12,7 +12,7 @@ jobs:
       # 1. 直接用 git clone 拉取 Gitee 仓库（彻底修复来源问题）
       - name: 克隆 Gitee ok-tv 代码 (new-fm 分支)
         run: |
-          git clone -b new-fm https://gitee.com/cyh92/ok-tv.git ok-tv
+          git clone -b fm-new https://gitee.com/cyh92/ok-tv.git ok-tv
 
       # 2. 设置 JDK 17
       - name: 设置 JDK 17
@@ -28,12 +28,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: 配置 APK 签名（覆盖式，不重复，100%成功）
+      - name: 配置 APK 签名（终极修复版）
         working-directory: ./ok-tv
         run: |
-            ls
-            sed -i '/signingConfigs {/,/}/c\signingConfigs {\n        release {\n            storeFile file("../fm-tv.jks")\n            storePassword "123456"\n            keyAlias "key0"\n            keyPassword "123456"\n        }\n}' app/build.gradle
-            cat app/build.gradle
+          # 1. 全新覆盖创建 local.properties
+          cat > local.properties << EOF
+          storeFile=fm-tv.jks
+          keyAlias=key0
+          storePassword=123456
+          keyPassword=123456
+          EOF
+
+          # 2. 打印内容确认是否正确
+          cat local.properties
+          cat app/build.gradle
             
       # 4. 清理 + 构建（确保签名一定生效）
       - name: 构建 Release APK
@@ -73,7 +81,7 @@ jobs:
           body: |
             ✅ 手动编译完成
             🔐 已使用 fm-tv.jks 签名
-            🌿 分支：new-fm
+            🌿 分支：fm-new
           files: ${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
