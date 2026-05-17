@@ -38,7 +38,7 @@ jobs:
         working-directory: ./ok-tv
         run: |
           chmod +x gradlew
-          ./gradlew clean assembleRelease
+          ./gradlew assembleRelease
 
       # ================= 核心修改 =================
       # 1. 创建 apks 文件夹
