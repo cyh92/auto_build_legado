@@ -35,6 +35,7 @@ jobs:
 
       - name: 复制签名文件
         run: |
+          cd $GITHUB_WORKSPACE
           ls            
           cp -f /tv/fm-tv.jks $GITHUB_WORKSPACE/ok-tv/app/fm-tv.jks
 
