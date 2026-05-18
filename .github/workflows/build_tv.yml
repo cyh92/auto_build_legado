@@ -33,6 +33,11 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: 复制签名文件
+        run: |
+          ls            
+          cp -f /tv/fm-tv.jks $GITHUB_WORKSPACE/ok-tv/app/fm-tv.jks
+
       - name: 配置 APK 签名（终极修复版）
         working-directory: ./ok-tv
         run: |
@@ -43,8 +48,6 @@ jobs:
           storePassword=123456
           keyPassword=123456
           EOF
-          ls ../../
-          cp -f /tv/fm-tv.jks $GITHUB_WORKSPACE/ok-tv/app/fm-tv.jks
           # 2. 打印内容确认是否正确
           cat app/build.gradle
             
