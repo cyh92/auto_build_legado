@@ -37,7 +37,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           ls            
-          cp -f /tv/fm-tv.jks $GITHUB_WORKSPACE/ok-tv/app/fm-tv.jks
+         # cp -f /tv/fm-tv.jks $GITHUB_WORKSPACE/ok-tv/app/fm-tv.jks
 
       - name: 配置 APK 签名（终极修复版）
         working-directory: ./ok-tv
