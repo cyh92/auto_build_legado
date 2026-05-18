@@ -43,7 +43,7 @@ jobs:
           storePassword=123456
           keyPassword=123456
           EOF
-
+          cp $GITHUB_WORKSPACE/.github/tv/fm-tv.jks app/fm-tv.jks
           # 2. 打印内容确认是否正确
           cat local.properties
           cat app/build.gradle
