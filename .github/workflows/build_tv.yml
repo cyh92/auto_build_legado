@@ -43,9 +43,9 @@ jobs:
           storePassword=123456
           keyPassword=123456
           EOF
+          ls
           cp -f /tv/fm-tv.jks $GITHUB_WORKSPACE/ok-tv/app/fm-tv.jks
           # 2. 打印内容确认是否正确
-          cat local.properties
           cat app/build.gradle
             
       # 4. 清理 + 构建（确保签名一定生效）
