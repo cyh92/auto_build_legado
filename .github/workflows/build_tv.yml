@@ -14,7 +14,10 @@ jobs:
       contents: write
 
     steps:
-      # 1. 直接用 git clone 拉取 Gitee 仓库（彻底修复来源问题）
+    # 1. 先拉取【你自己 GitHub 仓库】所有文件（tv/、jks、脚本）
+      - name: 检出当前仓库
+        uses: actions/checkout@v4
+          # 1. 直接用 git clone 拉取 Gitee 仓库（彻底修复来源问题）
       - name: 克隆 Gitee ok-tv 代码 (new-fm 分支)
         run: |
           git clone -b ${{ github.event.inputs.branch }} https://gitee.com/cyh92/ok-tv.git ok-tv
