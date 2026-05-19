@@ -2,6 +2,11 @@ name: 手动编译 OK-TV 签名版 APK (Gitee)
 on:
   workflow_dispatch:
     inputs:
+        add_suffix:
+          description: '是否追加包名后缀（.cyh）'
+          required: true
+          default: false
+          type: boolean  # 这就是复选框！
         branch:
           description: '请输入要编译的分支名'
           required: true
@@ -62,7 +67,14 @@ jobs:
         working-directory: ./ok-tv
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease
+          # 如果勾选了后缀，就添加参数；否则正常打包
+          if [[ "${{ inputs.add_suffix }}" == "true" ]]; then
+            echo "✅ 已勾选，追加包名后缀 .cyh"
+            ./gradlew clean assembleRelease -Pandroid.applicationIdSuffix=.cyh
+          else
+            echo "❌ 未勾选，使用原始包名"
+            ./gradlew clean assembleRelease
+          fi
 
       # ================= 核心修改 =================
       # 1. 创建 apks 文件夹
