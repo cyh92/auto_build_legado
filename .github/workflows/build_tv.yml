@@ -52,7 +52,7 @@ jobs:
           keyAlias=key0
           storePassword=123456
           keyPassword=123456
-          openid=${{ secrets.MY_GITEE_TOKEN }}
+          openid=${{ secrets.openid }}
           EOF
           # 2. 打印内容确认是否正确
           cat app/build.gradle
