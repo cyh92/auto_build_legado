@@ -59,8 +59,6 @@ jobs:
           keyPassword=123456
           openid=${{ secrets.OPENID }}
           EOF
-          # 2. 打印内容确认是否正确
-          cat app/build.gradle
             
       # 4. 清理 + 构建（确保签名一定生效）
       - name: 构建 Release APK
@@ -68,7 +66,9 @@ jobs:
         run: |
          chmod +x gradlew
           if [[ "${{ inputs.add_suffix }}" == "true" ]]; then
-            ./gradlew assembleRelease -Pandroid.applicationIdSuffix=.cyh
+          sed -i '/^        release {/,/^        }/ s/^        }/        applicationIdSuffix ".cyh"\n        }/' app/build.gradle
+          cat app/build.gradle
+            ./gradlew assembleRelease
           else
             ./gradlew assembleRelease
           fi
