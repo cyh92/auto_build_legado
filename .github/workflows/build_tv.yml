@@ -103,7 +103,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}-${{ steps.time.outputs.datetime }}
-          name: OK-TV 手动构建版-${{ steps.time.outputs.datetime }}
+          name: |
+            OK-TV 手动构建版-${{ steps.time.outputs.datetime }}
+            ${{ inputs.add_suffix && '✅ [已追加包名后缀 .cyh]' || '❌ [未追加包名后缀]' }}
           body: |
             ✅ 手动编译完成
             🔐 已使用 fm-tv.jks 签名
