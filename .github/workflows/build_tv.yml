@@ -66,10 +66,7 @@ jobs:
       - name: 构建 Release APK
         working-directory: ./ok-tv
         run: |
-          chmod +x gradlew
-          chmod +x gradlew
-          ./gradlew clean  # 清理
-          ./gradlew chaquopySetupPython  # 强制初始化 chaquopy
+         chmod +x gradlew
           if [[ "${{ inputs.add_suffix }}" == "true" ]]; then
             ./gradlew assembleRelease -Pandroid.applicationIdSuffix=.cyh
           else
