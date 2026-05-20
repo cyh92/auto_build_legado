@@ -52,7 +52,15 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-
+      - name: Prepare build environment
+        run: |
+          # 修复缺失混淆文件
+          touch libraries/transformer/proguard-rules.txt
+          touch libraries/muxer/proguard-rules.txt
+          touch libraries/effect_lottie/proguard-rules.txt
+          touch libraries/effect/proguard-rules.txt
+          # 移除崩溃的预览Demo模块
+          rm -rf demos/composition
       - name: Grant execute permission
         run: chmod +x gradlew
 
