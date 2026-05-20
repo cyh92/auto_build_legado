@@ -62,7 +62,11 @@ jobs:
           # 移除崩溃的预览Demo模块
           sed -i '/demo-/d' settings.gradle
           sed -i '/demo/d' settings.gradle
+          
+          sed -i '/test-/d' settings.gradle
+          
           rm -rf demos
+          rm -rf libraries/test*
       - name: Grant execute permission
         run: chmod +x gradlew
 
