@@ -59,7 +59,16 @@ jobs:
           keyPassword=123456
           openid=${{ secrets.OPENID }}
           EOF
-            
+
+      # 独立步骤：读取版本号（无警告✅）
+      - name: 读取版本号 versionName
+        id: version
+        working-directory: ./ok-tv
+        run: |
+          VERSION_NAME=$(grep -m1 "versionName" app/build.gradle | sed -E 's/.*versionName[ =]"([^"]+)".*/\1/')
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "✅ 版本号：$VERSION_NAME"
+          
       # 4. 清理 + 构建（确保签名一定生效）
       - name: 构建 Release APK
         working-directory: ./ok-tv
@@ -100,11 +109,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}-${{ steps.time.outputs.datetime }}
-          name: |
-            OK-TV 手动构建版-${{ steps.time.outputs.datetime }}
-            ${{ inputs.add_suffix && '✅ [已追加包名后缀 .cyh]' || '❌ [未追加包名后缀]' }}
+           # 👇 这里用 steps.version.outputs.version_name，无警告！
+          name: OKTV v${{ steps.version.outputs.version_name }} ${{ steps.time.outputs.datetime }} ${{ inputs.add_suffix && '✅ 已加后缀' || '❌ 无后缀' }}
           body: |
             ✅ 手动编译完成
+            📦 版本号：v${{ steps.version.outputs.version_name }}
             🔐 已使用 fm-tv.jks 签名
             🌿 分支：${{ github.event.inputs.branch }}
           files: ${{ steps.apk.outputs.files }}
