@@ -110,7 +110,9 @@ jobs:
         with:
           tag_name: build-${{ github.run_number }}-${{ steps.time.outputs.datetime }}
            # 👇 这里用 steps.version.outputs.version_name，无警告！
-          name: OKTV v${{ steps.version.outputs.version_name }} ${{ steps.time.outputs.datetime }} ${{ inputs.add_suffix && '✅ 已加后缀' || '❌ 无后缀' }}
+          name: |
+            筱筱影视 v${{ steps.version.outputs.version_name }} 
+            手动构建版-${{ steps.time.outputs.datetime }} ${{ inputs.add_suffix && '✅ 已加后缀' || '❌ 无后缀' }}
           body: |
             ✅ 手动编译完成
             📦 版本号：v${{ steps.version.outputs.version_name }}
