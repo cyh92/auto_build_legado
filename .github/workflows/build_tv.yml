@@ -58,7 +58,7 @@ jobs:
           storePassword=123456
           keyPassword=123456
           openid=${{ secrets.OPENID }}
-          gitee_token=${{ secrets.gitee_token }}
+          gitee_token=${{ secrets.MY_GITEE_TOKEN }}
           EOF
 
       # 独立步骤：读取版本号（无警告✅）
