@@ -27,33 +27,30 @@ jobs:
           distribution: 'jetbrains'
           cache: gradle
 
-      # 3. 赋予 gradlew 执行权限
-      - name: Grant execute permission
-        run: chmod +x ./TVSpider/gradlew
+      # 构建 APK + Jar
+      - name: Build with Gradle
+        run: |
+          cd TVSpider
+          chmod +x gradlew
+          ./gradlew app:assembleRelease
 
-      # 4. 构建 Jar（在 TVSpider 目录下执行）
-      - name: Build custom spider jar
-        run: cd TVSpider && ./gradlew app:buildCustomSpiderJar
+      # 给 sh 授权 + 执行 genJar.sh（核心！）
+      - name: Run genJar.sh
+        run: |
+          cd TVSpider
+          chmod +x ./jar/genJar.sh  # 必须加执行权限
+          ./jar/genJar.sh           # 执行脚本
 
-      # 5. 上传构建产物（方便查看）
-      - name: Upload jar & json
-        uses: actions/upload-artifact@v4
-        with:
-          name: spider-build
-          path: |
-            TVSpider/jar/
-            TVSpider/json/
-
-      # 6. 自动发布到 GitHub Release（核心）
-      - name: Create Release and Upload Assets
+      # 发布所有生成的 jar、md5、json 到 Release
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: auto-build-${{ github.sha }}
-          name: 自动构建 Jar ${{ github.sha }}
-          body: 自动构建的 spider jar 和 json 文件
+          name: 自动构建 Jar
+          body: 由 GitHub Actions 自动构建
           files: |
             TVSpider/jar/*.jar
             TVSpider/jar/*.md5
-            TVSpider/json/index.json
+            TVSpider/json/*.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
