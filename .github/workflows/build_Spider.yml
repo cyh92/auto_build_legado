@@ -51,6 +51,5 @@ jobs:
           files: |
             TVSpider/jar/*.jar
             TVSpider/jar/*.md5
-            TVSpider/json/*.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
