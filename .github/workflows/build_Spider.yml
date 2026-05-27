@@ -39,21 +39,17 @@ jobs:
           chmod +x ./jar/genJar.sh  # 必须加执行权限
           ./jar/genJar.sh           # 执行脚本
 
-      # 获取当前时间（精确到秒）
-      - name: Get current time
-        id: time
-        uses: nanzm/get-time-action@v1.1
-        with:
-          timeZone: Asia/Shanghai
-          format: 'YYYY-MM-DD HH:mm:ss'
+      - name: Set release datetime
+        id: datetime
+        run: |
+          echo "datetime=$(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M:%S')" >> "$GITHUB_OUTPUT"
 
-      # 发布到 Release，名称带时间
+      # 发布 Release，名称带时间
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: auto-build-${{ github.sha }}
-          # 这里加上了时间后缀
-          name: 自动构建 Jar - ${{ steps.time.outputs.time }}
+          name: "自动构建 Jar - ${{ steps.datetime.outputs.datetime }}"
           body: 由 GitHub Actions 自动构建
           files: |
             TVSpider/jar/*.jar
