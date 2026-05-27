@@ -17,7 +17,7 @@ jobs:
 
       # 1. 拉取 Gitee TVSpider
       - name: Clone TVSpider from Gitee
-        run: git clone https://gitee.com/cyh92/TVSpider.git
+        run: git clone -b spider_cyh --single-branch https://gitee.com/cyh92/TVSpider.git
 
       # 2. 设置 JDK
       - name: Set up JDK 21
@@ -52,8 +52,8 @@ jobs:
           name: 自动构建 Jar ${{ github.sha }}
           body: 自动构建的 spider jar 和 json 文件
           files: |
-            TVSpider/jar/custom_spider.jar
-            TVSpider/jar/custom_spider.jar.md5
+            TVSpider/jar/*.jar
+            TVSpider/jar/*.md5
             TVSpider/json/index.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
