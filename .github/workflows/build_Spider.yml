@@ -1,0 +1,59 @@
+name: Spider Jar Gen CI
+
+on:
+  push:
+    branches: [ "multiThread" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 必须：发布 Release 权限
+
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+
+      # 1. 拉取 Gitee TVSpider
+      - name: Clone TVSpider from Gitee
+        run: git clone https://gitee.com/cyh92/TVSpider.git
+
+      # 2. 设置 JDK
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'jetbrains'
+          cache: gradle
+
+      # 3. 赋予 gradlew 执行权限
+      - name: Grant execute permission
+        run: chmod +x ./TVSpider/gradlew
+
+      # 4. 构建 Jar（在 TVSpider 目录下执行）
+      - name: Build custom spider jar
+        run: cd TVSpider && ./gradlew app:buildCustomSpiderJar
+
+      # 5. 上传构建产物（方便查看）
+      - name: Upload jar & json
+        uses: actions/upload-artifact@v4
+        with:
+          name: spider-build
+          path: |
+            TVSpider/jar/
+            TVSpider/json/
+
+      # 6. 自动发布到 GitHub Release（核心）
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: auto-build-${{ github.sha }}
+          name: 自动构建 Jar ${{ github.sha }}
+          body: 自动构建的 spider jar 和 json 文件
+          files: |
+            TVSpider/jar/custom_spider.jar
+            TVSpider/jar/custom_spider.jar.md5
+            TVSpider/json/index.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
