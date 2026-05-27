@@ -1,0 +1,79 @@
+name: Build decoder_ffmpeg AAR
+
+on:
+  workflow_dispatch:  # 手动触发
+    inputs:
+      enabled_decoders:
+        description: 'Enabled decoders (space-separated)'
+        default: 'vorbis opus flac alac mp3 aac ac3 eac3 dca'
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    env:
+      # 固定版本（官方文档要求）
+      NDK_VERSION: '26.3.11579264'
+      CMAKE_VERSION: '3.22.1'
+      ANDROID_ABI: 21
+      HOST_PLATFORM: 'linux-x86_64'
+      FFMPEG_BRANCH: 'release/6.0'
+      # 输出路径
+      AAR_OUT: libraries/decoder_ffmpeg/build/outputs/aar/lib-decoder-ffmpeg-release.aar
+
+    steps:
+      - name: Checkout androidx/media
+        uses: actions/checkout@v4
+        with:
+          repository: androidx/media
+          ref: main
+          path: media
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      - name: Set up Android SDK & NDK
+        uses: android-actions/setup-android@v3
+        with:
+          sdk-version: 35
+          ndk-version: ${{ env.NDK_VERSION }}
+          cmake-version: ${{ env.CMAKE_VERSION }}
+          accept-licenses: true
+
+      - name: Set environment variables
+        working-directory: media
+        run: |
+          echo "FFMPEG_MODULE_PATH=$(pwd)/libraries/decoder_ffmpeg/src/main" >> $GITHUB_ENV
+          echo "NDK_PATH=$ANDROID_HOME/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_ENV
+          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Download FFmpeg 6.0
+        working-directory: ${{ env.FFMPEG_MODULE_PATH }}/jni
+        run: |
+          git clone git://source.ffmpeg.org/ffmpeg --branch ${{ env.FFMPEG_BRANCH }} --depth=1
+
+      - name: Run build_ffmpeg.sh
+        working-directory: ${{ env.FFMPEG_MODULE_PATH }}/jni
+        run: |
+          chmod +x build_ffmpeg.sh
+          ./build_ffmpeg.sh \
+            "${{ env.FFMPEG_MODULE_PATH }}" \
+            "${{ env.NDK_PATH }}" \
+            "${{ env.HOST_PLATFORM }}" \
+            "${{ env.ANDROID_ABI }}" \
+            ${{ github.event.inputs.enabled_decoders || 'vorbis opus flac alac mp3 aac ac3 eac3 dca' }}
+
+      - name: Build AAR with Gradle
+        working-directory: media
+        run: |
+          ./gradlew :libraries:decoder_ffmpeg:assembleRelease
+
+      - name: Upload AAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: lib-decoder-ffmpeg-release
+          path: media/${{ env.AAR_OUT }}
+          retention-days: 30
