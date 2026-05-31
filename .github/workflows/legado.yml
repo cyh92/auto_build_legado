@@ -85,21 +85,16 @@ jobs:
         run: |
           source $GITHUB_WORKSPACE/action_app_build.sh
           app_build
-
-      - name: 上传 APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.APP_UPLOAD_NAME }}
-          path: ${{ env.APP_UPLOAD }}/*.apk
+      - name: Get current date
+        id: date
+        run: echo "datetime=$(date +%Y%m%d%H%M%S%3N)" >> $GITHUB_OUTPUT
 
       - name: 自动发布 Release
         if: success()
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ env.APP_UPLOAD_NAME }}
-          tag_name: release-${{ env.APP_UPLOAD_NAME }}
+          name: ${{ env.APP_UPLOAD_NAME }}-${{ steps.date.outputs.datetime }}
+          tag_name: release-${{ env.APP_UPLOAD_NAME }}-${{ steps.date.outputs.datetime }}
           files: ${{ env.APP_UPLOAD }}/*.apk
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
