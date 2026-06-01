@@ -14,13 +14,7 @@ on:
       defaultBranch:
         description: '使用分支'
         required: true
-        default: 'new-leg'  
-        type: choice
-        options:
-          - legado-dev
-          - master
-          - main
-          - new-leg
+        default: 'new-leg'          
   push:
     paths:
       - '.last_upstream_commit'  # 当检测到上游更新时触发
