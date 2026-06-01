@@ -40,7 +40,7 @@ jobs:
         shell: bash
         env:
           SECRETS_APP_NAME: "阅读x"
-          SECRETS_GIT_URL: https://${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/legado.git
+          SECRETS_GIT_URL: ${{ github.event.inputs.defaultUrl }}
           SECRETS_BRANCH: ${{ github.event.inputs.defaultBranch }}
           SECRETS_CHANNEL: "App"
           SECRETS_SUFFIX: "Pro"
