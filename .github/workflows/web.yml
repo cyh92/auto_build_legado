@@ -73,4 +73,4 @@ jobs:
         run: |
           git add ${{ env.WEB_DIST_PATH }}
           git commit -m "Bump web ${{ env.APP_VER }} [自动构建]"
-          git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/cyh92/legado.git ${{ env.BRANCH }}
+          git push origin ${{ env.BRANCH }}
