@@ -1,0 +1,76 @@
+name: Build Web (git clone 拉取)
+
+on:
+  workflow_dispatch:    # 手动触发
+
+env:
+  # 目标仓库（你指定的）
+  REPO_URL: https://gitee.com/cyh92/legado.git
+  BRANCH: new-leg-team
+  WEB_DIST_PATH: app/src/main/assets/web/vue/
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 配置 Git 信息
+        run: |
+          git config --global user.name "auto-build"
+          git config --global user.email "bot@actions.com"
+
+      # ======================
+      # 核心：使用 git clone 拉取代码
+      # ======================
+      - name: Git Clone 源码
+        run: |
+          git clone -b ${{ env.BRANCH }} ${{ env.REPO_URL }} repo
+          cd repo
+          echo "当前目录：$(pwd)"
+          echo "当前分支：$(git branch --show-current)"
+
+      # ======================
+      # 安装 Node 环境
+      # ======================
+      - name: 安装 Node.js 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v6
+        name: 安装 pnpm
+        with:
+          version: 9
+          run_install: false
+
+      # pnpm 缓存
+      - name: 获取 pnpm 缓存路径
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('repo/modules/web/package.json') }}
+
+      # ======================
+      # 安装依赖 & 构建 Web
+      # ======================
+      - name: 构建 Web 项目
+        working-directory: repo/modules/web
+        run: |
+          pnpm i
+          pnpm build
+          version="v$(date -d "8 hour" -u +3.%y.%m%d%H)"
+          echo "APP_VER=$version" >> $GITHUB_ENV
+          echo "版本号：$version"
+
+      # ======================
+      # 提交并推回 Gitee 仓库
+      # ======================
+      - name: 提交构建产物到 Gitee
+        working-directory: repo
+        run: |
+          git add ${{ env.WEB_DIST_PATH }}
+          git commit -m "Bump web ${{ env.APP_VER }} [自动构建]"
+          git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/cyh92/legado.git ${{ env.BRANCH }}
