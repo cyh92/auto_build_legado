@@ -24,7 +24,7 @@ jobs:
       # ======================
       - name: Git Clone 源码
         run: |
-          git clone -b ${{ env.BRANCH }} https://${{ secrets.GITEE_TOKEN }}@gitee.com/cyh92/legado.git repo
+          git clone -b ${{ env.BRANCH }} https://${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/legado.git repo
           cd repo
           echo "当前分支：$(git branch --show-current)"
 
