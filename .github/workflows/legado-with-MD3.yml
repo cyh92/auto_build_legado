@@ -1,0 +1,68 @@
+name: legado-with-MD3
+on:
+  workflow_dispatch:
+    inputs:
+        branch:
+          description: '请输入要编译的分支名'
+          required: true
+          default: 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    # 1. 先拉取【你自己 GitHub 仓库】所有文件（tv/、jks、脚本）
+      - name: 检出当前仓库
+        uses: actions/checkout@v4
+          # 1. 直接用 git clone 拉取 Gitee 仓库（彻底修复来源问题）
+      - name: 克隆 Gitee ok-tv 代码 (new-fm 分支)
+        run: |
+          git clone -b ${{ github.event.inputs.branch }} https://gitee.com/cyh92/legado-with-MD3.git legado
+
+      # 2. 设置 JDK 
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: 21
+      - name: Clear 18PlusList.txt
+        run: |
+          echo "清空18PlusList.txt"
+          echo "">$GITHUB_WORKSPACE/app/src/main/assets/18PlusList.txt
+
+      - name: Release Apk Sign
+        shell: bash
+        run: |
+          cp $GITHUB_WORKSPACE/.github/scripts/key-cyh.jks $GITHUB_WORKSPACE/legado/app/legado.jks
+          sed '$r '"$GITHUB_WORKSPACE/.github/scripts/legado.sign"'' $GITHUB_WORKSPACE/legado/gradle.properties -i
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+
+      - name: Remove Aliyun mirrors (unreliable in CI)
+        run: |
+          sed -i '/maven.aliyun.com/d' settings.gradle
+
+      - name: Build With Gradle
+        run: |
+          ls
+          cd legado
+          chmod +x gradlew
+          # 将 type 首字母大写以匹配 Gradle Task
+          TYPE_CAP=$(echo ${{ env.type }} | awk '{print toupper(substr($0,1,1))substr($0,2)}')
+          ./gradlew assemble${{ env.product }}${TYPE_CAP} --no-configuration-cache
+        env:
+          COMMIT_NUMBER: ${{ env.COMMIT_NUMBER_VAL }}
+          APP_VERSION_NAME: ${{ env.VERSIONL }}
+
+      - name: Move Missing Rules Files
+        if: matrix.type == 'release'
+        run: |
+          echo "移动missing_rules.txt文件"
+          MAPPING_DIR="${{ github.workspace }}/mapping"
+          mkdir -p "$MAPPING_DIR"
+          # 使用 find 代替 ls，避免参数列表过长
+          find ${{ github.workspace }}/app/build/outputs/mapping/ -name "missing_rules.txt" -exec mv {} "$MAPPING_DIR/missing_rules.txt" \;
