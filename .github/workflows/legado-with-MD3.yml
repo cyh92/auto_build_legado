@@ -307,7 +307,8 @@ jobs:
           LAST_TAG="${{ needs.prepare.outputs.latest_tag }}"
           IS_RELEASE="${{ needs.prepare.outputs.is_release }}"
           
-          COMMIT_LOG=$(git log "$LAST_TAG"..HEAD --pretty=format:"* %s" --no-merges)
+          COMMIT_LOG=""
+          #$(git log "$LAST_TAG"..HEAD --pretty=format:"* %s" --no-merges)
           
           if [ -z "$COMMIT_LOG" ]; then
               CONTENT="- 没有新的 Commit 记录."
