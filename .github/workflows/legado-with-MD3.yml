@@ -125,6 +125,13 @@ jobs:
         with:
           repository: HapeLee/legado-with-MD3
           fetch-depth: 0
+        # 2. 临时拉取当前工作流仓库（仅用来取签名文件）
+      - name: Checkout 当前仓库(签名文件)
+        uses: actions/checkout@v5
+        with:
+          path: tmp-current-repo
+          fetch-depth: 1
+
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
@@ -137,8 +144,8 @@ jobs:
       - name: Release Apk Sign
         shell: bash
         run: |
-          cp $GITHUB_WORKSPACE/.github/legado/legado.jks $GITHUB_WORKSPACE/app/legado.jks
-          sed '$r '"$GITHUB_WORKSPACE/.github/legado/legado.sign"'' $GITHUB_WORKSPACE/gradle.properties -i
+          cp $GITHUB_WORKSPACE/tmp-current-repo/.github/legado/legado.jks $GITHUB_WORKSPACE/app/legado.jks
+          sed '$r '"$GITHUB_WORKSPACE/tmp-current-repo/.github/legado/legado.sign"'' $GITHUB_WORKSPACE/gradle.properties -i
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
