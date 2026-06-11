@@ -255,7 +255,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          repository: HapeLee/legado-with-MD3
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
        # 1. 下载 build 任务上传的所有 APK
