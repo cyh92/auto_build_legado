@@ -218,11 +218,34 @@ jobs:
             exit 1
           fi
 
-      - name: 上传 APK
+      - name: Upload universal APK
         uses: actions/upload-artifact@v4
         with:
-          name: apks
-          path: app/build/outputs/apk/**/*.apk
+          name: universal-apk-${{ env.type }}
+          if-no-files-found: error
+          path: app/build/outputs/apk/${{ env.product }}/${{ env.type }}/*universal*.apk
+
+      - name: Upload arm64-v8a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: arm64-v8a-apk-${{ env.type }}
+          if-no-files-found: error
+          path: app/build/outputs/apk/${{ env.product }}/${{ env.type }}/*arm64-v8a*.apk
+
+      - name: Upload armeabi-v7a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: armeabi-v7a-apk-${{ env.type }}
+          if-no-files-found: error
+          path: app/build/outputs/apk/${{ env.product }}/${{ env.type }}/*armeabi-v7a*.apk
+
+      - name: Upload Mapping File To Artifact
+        if: matrix.type == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: legado.${{ env.product }}.${{ env.type }}.mapping
+          if-no-files-found: ignore
+          path: ${{ github.workspace }}/mapping/mapping.txt
 
   create_release:
     needs: [ prepare, build ]
@@ -235,36 +258,44 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: 收集所有 APK 文件
-        run: |
-          # 创建根目录 artifacts
-          mkdir -p artifacts
-          ls
-          # 递归查找 app/build 下所有 apk，复制到 artifacts
-          #find "app" -name "*.apk" -type f -exec cp {} "artifacts/" \;
-          find ./app -name "*.apk" -type f -exec cp {} artifacts/ \;
-          
-          # 查看收集结果
-          echo "已收集的 APK 文件："
-          ls -lh artifacts
+       # 1. 下载 build 任务上传的所有 APK
+      - name: 下载所有 APK Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-apk-*'
+          path: artifacts
+          merge-multiple: true
+          if-no-artifact-found: error
 
+      # 2. 重命名逻辑
       - name: 整理并重命名 APK 文件
         id: organize_apks
         run: |
           VERSIONL="${{ needs.prepare.outputs.versionL }}"
           echo "正在整理 APK 文件..."
-          
-           # 进入根目录的 artifacts
+          if [ ! -d artifacts ]; then
+            echo "::error::artifacts 目录不存在，说明上一步没有下载到 APK。"
+            exit 1
+          fi
           cd artifacts
+
           shopt -s nullglob
-          
           for f in *.apk; do
             out="legado-${VERSIONL}"
-            [[ $f == *arm64-v8a* ]] && out+="-arm64-v8a"
-            [[ $f == *armeabi-v7a* ]] && out+="-armeabi-v7a"
-            [[ $f == *universal* ]] && out+="-universal"
-            mv "$f" "${out}.apk"
+            if [[ "$f" == *noR8* || "$f" == *nor8* ]]; then
+              out="${out}-noR8"
+            fi
+
+            if [[ "$f" == *arm64-v8a* ]]; then
+              out="${out}-arm64-v8a"
+            elif [[ "$f" == *armeabi-v7a* ]]; then
+              out="${out}-armeabi-v7a"
+            fi
+
+            out="${out}.apk"
+            mv "$f" "$out"
           done
+
           ls -l
 
       #
@@ -319,6 +350,6 @@ jobs:
           name: ${{ needs.prepare.outputs.is_release == 'true' && format('Release {0}', needs.prepare.outputs.versionL) || format('Pre-release {0}', needs.prepare.outputs.versionL) }}
           body: ${{ steps.get_commits.outputs.release_body }}
           prerelease: ${{ needs.prepare.outputs.is_release != 'true' }}
-          files: artifacts/*.apk
+          files: artifacts/legado-${{ needs.prepare.outputs.versionL }}*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
