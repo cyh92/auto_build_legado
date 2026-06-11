@@ -2,6 +2,15 @@ name: legado-MD3-Auto-Release
 
 on:
   workflow_dispatch:  # 手动触发
+    inputs:
+        build_type:
+          description: 选择构建类型
+          type: choice
+          required: true
+          default: 正式版   # 默认选中：正式版
+          options:
+            - 正式版
+            - 测试版
 
 permissions:
   contents: write
@@ -26,7 +35,21 @@ jobs:
         with:
           repository: HapeLee/legado-with-MD3
           fetch-depth: 0
+      - name: 修改 version.properties
+        run: |
+          BUILD_TYPE="${{ inputs.build_type }}"
+          PROP_FILE="./app/version.properties"
+          echo "当前选择：$BUILD_TYPE"
 
+          # 中文选项映射为 VERSION_SUFFIX
+          if [[ "$BUILD_TYPE" == "正式版" ]]; then
+            SUFFIX="0"
+          else
+            SUFFIX="1"
+          fi
+
+          sed -i "s/^VERSION_SUFFIX=.*/VERSION_SUFFIX=${SUFFIX}/" "${PROP_FILE}"
+          grep -E "VERSION_(MAJOR|MINOR|PATCH|SUFFIX)" "${PROP_FILE}"
       - name: 计算版本号和构建号
         id: set-ver
         run: |
