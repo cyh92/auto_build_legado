@@ -137,8 +137,8 @@ jobs:
       - name: Release Apk Sign
         shell: bash
         run: |
-          cp $GITHUB_WORKSPACE/.github/scripts/key-cyh.jks $GITHUB_WORKSPACE/app/legado.jks
-          sed '$r '"$GITHUB_WORKSPACE/.github/scripts/legado.sign"'' $GITHUB_WORKSPACE/gradle.properties -i
+          cp $GITHUB_WORKSPACE/.github/legado/legado.jks $GITHUB_WORKSPACE/app/legado.jks
+          sed '$r '"$GITHUB_WORKSPACE/.github/legado/legado.sign"'' $GITHUB_WORKSPACE/gradle.properties -i
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
