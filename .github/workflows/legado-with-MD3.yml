@@ -350,8 +350,8 @@ jobs:
       - name: 创建 GitHub Release 并上传文件
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.prepare.outputs.versionL }}
-          name: ${{ needs.prepare.outputs.is_release == 'true' && format('Legado Release {0}-{1}', needs.prepare.outputs.versionL,steps.date.outputs.datetime) || format('Legado Pre-release {0}-{1}', needs.prepare.outputs.versionL,steps.date.outputs.datetime) }}
+          tag_name: ${{ needs.prepare.outputs.versionL }}-${{ steps.date.outputs.datetime }}
+          name: ${{ needs.prepare.outputs.is_release == 'true' && format('legado-with-MD3 Release {0}-{1}', needs.prepare.outputs.versionL,steps.date.outputs.datetime) || format('legado-with-MD3 Pre-release {0}-{1}', needs.prepare.outputs.versionL,steps.date.outputs.datetime) }}
           body: ${{ steps.get_commits.outputs.release_body }}
           prerelease: ${{ needs.prepare.outputs.is_release != 'true' }}
           files: artifacts/legado-${{ needs.prepare.outputs.versionL }}*.apk
