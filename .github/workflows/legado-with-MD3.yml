@@ -351,7 +351,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.versionL }}
-          name: ${{ needs.prepare.outputs.is_release == 'true' && format('Legado Release {0}-${{ steps.date.outputs.datetime }}', needs.prepare.outputs.versionL) || format('Legado Pre-release {0}-${{ steps.date.outputs.datetime }}', needs.prepare.outputs.versionL) }}
+          name: ${{ needs.prepare.outputs.is_release == 'true' && format('Legado Release {0}-{1}', needs.prepare.outputs.versionL,steps.date.outputs.datetime) || format('Legado Pre-release {0}-{1}', needs.prepare.outputs.versionL,steps.date.outputs.datetime) }}
           body: ${{ steps.get_commits.outputs.release_body }}
           prerelease: ${{ needs.prepare.outputs.is_release != 'true' }}
           files: artifacts/legado-${{ needs.prepare.outputs.versionL }}*.apk
