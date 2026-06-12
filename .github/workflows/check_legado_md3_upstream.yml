@@ -34,11 +34,11 @@ jobs:
           echo "之前记录提交: $LAST_COMMIT"
 
           if [ "$LATEST_COMMIT" != "$LAST_COMMIT" ]; then
-            echo "$LATEST_COMMIT" > .last_upstream_commit
+            echo "$LATEST_COMMIT" > .last_md3_upstream_commit
 
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
-            git add .last_upstream_commit
+            git add .last_md3_upstream_commit
             git commit -m "trigger: upstream updated to $LATEST_COMMIT"
 
             git remote set-url origin https://x-access-token:$MY_GITHUB_TOKEN@github.com/${{ github.repository }}.git
