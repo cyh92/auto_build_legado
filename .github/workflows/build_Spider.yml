@@ -1,4 +1,4 @@
-name: Spider Jar Gen CI
+name: 编译生成Spider Jar Gen CI
 
 on:
   workflow_dispatch:
