@@ -1,4 +1,4 @@
-name: 检查上游更新
+name: 检查Legado上游更新
 
 on:
   workflow_dispatch:  # 允许手动触发
