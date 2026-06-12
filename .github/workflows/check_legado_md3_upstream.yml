@@ -22,7 +22,7 @@ jobs:
         run: |
           set -e
 
-          LATEST_COMMIT=$(git ls-remote https://github.com/HapeLee/legado-with-MD3/tree/main | cut -f1)
+          LATEST_COMMIT=$(git ls-remote https://github.com/HapeLee/legado-with-MD3 main | cut -f1)
           echo "最新上游提交: $LATEST_COMMIT"
 
           if [ -f .last_md3_upstream_commit ]; then
