@@ -1,0 +1,56 @@
+name: 检查legadeo-with-MD3上游更新
+
+on:
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出本仓库
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
+
+      - name: 获取上游最新 commit
+        env:
+          MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          LATEST_COMMIT=$(git ls-remote https://github.com/HapeLee/legado-with-MD3/tree/main | cut -f1)
+          echo "最新上游提交: $LATEST_COMMIT"
+
+          if [ -f .last_md3_upstream_commit ]; then
+            LAST_COMMIT=$(cat .last_md3_upstream_commit)
+          else
+            LAST_COMMIT="none"
+          fi
+
+          echo "之前记录提交: $LAST_COMMIT"
+
+          if [ "$LATEST_COMMIT" != "$LAST_COMMIT" ]; then
+            echo "$LATEST_COMMIT" > .last_upstream_commit
+
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add .last_upstream_commit
+            git commit -m "trigger: upstream updated to $LATEST_COMMIT"
+
+            git remote set-url origin https://x-access-token:$MY_GITHUB_TOKEN@github.com/${{ github.repository }}.git
+            git push
+
+            # 触发 legado.yml 工作流
+            curl -X POST \
+              -H "Authorization: token $MY_GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d '{"ref":"main","inputs":{}}' \
+              https://api.github.com/repos/${{ github.repository }}/actions/workflows/legado-with-MD3.yml/dispatches || echo "API调用失败，但继续执行"
+
+            # 通过推送更改来触发工作流
+            git push origin main || echo "推送失败，但继续执行"
+          else
+            echo "无更新，跳过构建。"
+          fi
