@@ -1,4 +1,4 @@
-name: 构建阅读.Pro APK
+name: 构建筱筱书阁 APK
 
 on:
   workflow_dispatch:  # 允许手动触发
