@@ -1,79 +1,98 @@
-name: Build decoder_ffmpeg AAR
+name: Build media3-decoder-ffmpeg AAR
+run-name: Build FFmpeg Decoder AAR (API24, 4 ABIs)
 
+# 触发条件：手动触发 / push main分支 / PR
 on:
-  workflow_dispatch:  # 手动触发
-    inputs:
-      enabled_decoders:
-        description: 'Enabled decoders (space-separated)'
-        default: 'vorbis opus flac alac mp3 aac ac3 eac3 dca'
-        required: false
+  workflow_dispatch:
 
+# 使用Ubuntu Linux Runner（文档指定linux-x86_64主机编译）
 jobs:
-  build:
-    runs-on: ubuntu-22.04
-    env:
-      # 固定版本（官方文档要求）
-      NDK_VERSION: '26.3.11579264'
-      CMAKE_VERSION: '3.22.1'
-      ANDROID_ABI: 21
-      HOST_PLATFORM: 'linux-x86_64'
-      FFMPEG_BRANCH: 'release/6.0'
-      # 输出路径
-      AAR_OUT: libraries/decoder_ffmpeg/build/outputs/aar/lib-decoder-ffmpeg-release.aar
-
+  build-ffmpeg-aar:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout androidx/media
-        uses: actions/checkout@v4
-        with:
-          repository: androidx/media
-          ref: main
-          path: media
+      - name: 全局环境变量定义
+        run: |
+          echo "MEDIA3_ROOT=${GITHUB_WORKSPACE}/media3" >> $GITHUB_ENV
+          echo "NDK_PATH=${GITHUB_WORKSPACE}/android-ndk-r26b" >> $GITHUB_ENV
+          echo "ANDROID_HOME=${GITHUB_WORKSPACE}/android-sdk" >> $GITHUB_ENV
+          echo "FFMPEG_JNI=${GITHUB_WORKSPACE}/media3/libraries/decoder_ffmpeg/src/main/jni" >> $GITHUB_ENV
+          echo "ABI_LIST=armeabi-v7a arm64-v8a x86 x86_64" >> $GITHUB_ENV
+          echo "MIN_API=24" >> $GITHUB_ENV
+          echo "HOST_PLATFORM=linux-x86_64" >> $GITHUB_ENV
 
+      # Step0: 安装依赖工具
+      - name: Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git wget unzip zip build-essential cmake yasm nasm
+
+      # Step0: 配置Java17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: 'temurin'
+          java-version: '17'
+          distribution: 'openjdk'
+          cache: gradle
 
-      - name: Set up Android SDK & NDK
-        uses: android-actions/setup-android@v3
-        with:
-          sdk-version: 35
-          ndk-version: ${{ env.NDK_VERSION }}
-          cmake-version: ${{ env.CMAKE_VERSION }}
-          accept-licenses: true
+      # Step1: 拉取Media3源码
+      - name: Clone androidx/media repository
+        run: git clone https://github.com/androidx/media.git ${{ env.MEDIA3_ROOT }}
 
-      - name: Set environment variables
-        working-directory: media
+      # Step2: 拉取FFmpeg 6.0源码
+      - name: Clone FFmpeg release/6.0
         run: |
-          echo "FFMPEG_MODULE_PATH=$(pwd)/libraries/decoder_ffmpeg/src/main" >> $GITHUB_ENV
-          echo "NDK_PATH=$ANDROID_HOME/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_ENV
-          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+          cd ${{ env.FFMPEG_JNI }}
+          git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+          cd ffmpeg
+          git checkout release/6.0
 
-      - name: Download FFmpeg 6.0
-        working-directory: ${{ env.FFMPEG_MODULE_PATH }}/jni
+      # 下载Android SDK + NDK r26b（文档指定版本）
+      - name: Download Android SDK & NDK r26b
         run: |
-          git clone git://source.ffmpeg.org/ffmpeg --branch ${{ env.FFMPEG_BRANCH }} --depth=1
+          # SDK commandline tools
+          mkdir -p ${{ env.ANDROID_HOME }}/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdtools.zip
+          unzip -q cmdtools.zip -d ${{ env.ANDROID_HOME }}/cmdline-tools
+          mv ${{ env.ANDROID_HOME }}/cmdline-tools/cmdline-tools ${{ env.ANDROID_HOME }}/cmdline-tools/latest
+          rm cmdtools.zip
 
-      - name: Run build_ffmpeg.sh
-        working-directory: ${{ env.FFMPEG_MODULE_PATH }}/jni
+          # 安装平台工具、平台34（任意平台满足要求）
+          yes | ${{ env.ANDROID_HOME }}/cmdline-tools/latest/bin/sdkmanager --licenses
+          ${{ env.ANDROID_HOME }}/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34"
+
+          # 下载NDK r26b
+          wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip -O ndk.zip
+          unzip -q ndk.zip -d ${{ env.GITHUB_WORKSPACE }}
+          rm ndk.zip
+
+      # Step3: 执行build_ffmpeg.sh编译FFmpeg静态库
+      - name: Build FFmpeg static libraries
         run: |
-          chmod +x build_ffmpeg.sh
+          cd ${{ env.FFMPEG_JNI }}
           ./build_ffmpeg.sh \
-            "${{ env.FFMPEG_MODULE_PATH }}" \
-            "${{ env.NDK_PATH }}" \
-            "${{ env.HOST_PLATFORM }}" \
-            "${{ env.ANDROID_ABI }}" \
-            ${{ github.event.inputs.enabled_decoders || 'vorbis opus flac alac mp3 aac ac3 eac3 dca' }}
+            ${{ env.NDK_PATH }} \
+            ${{ env.HOST_PLATFORM }} \
+            "${{ env.ABI_LIST }}" \
+            ${{ env.MIN_API }}
 
-      - name: Build AAR with Gradle
-        working-directory: media
+      # Step4: Gradle编译release AAR
+      - name: Assemble media3-decoder-ffmpeg Release AAR
         run: |
-          ./gradlew :libraries:decoder_ffmpeg:assembleRelease
+          cd ${{ env.MEDIA3_ROOT }}
+          ANDROID_HOME=${{ env.ANDROID_HOME }} \
+          JAVA_HOME=${{ env.JAVA_HOME }} \
+          ./gradlew :lib-decoder-ffmpeg:assembleRelease
 
-      - name: Upload AAR
+      # 定位AAR产物路径
+      - name: Locate output AAR
+        run: |
+          echo "AAR_PATH=${{ env.MEDIA3_ROOT }}/libraries/decoder_ffmpeg/buildout/outputs/aar/lib-decoder-ffmpeg-release.aar" >> $GITHUB_ENV
+          ls -la ${{ env.MEDIA3_ROOT }}/libraries/decoder_ffmpeg/buildout/outputs/aar/
+
+      # 上传AAR到Action Artifacts（可下载）
+      - name: Upload compiled AAR artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lib-decoder-ffmpeg-release
-          path: media/${{ env.AAR_OUT }}
+          name: media3-decoder-ffmpeg-release.aar
+          path: ${{ env.AAR_PATH }}
           retention-days: 30
