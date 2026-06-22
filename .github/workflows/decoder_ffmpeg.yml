@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'openjdk'
+          distribution: 'temurin'
           cache: gradle
 
       # Step1: 拉取Media3源码
