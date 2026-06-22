@@ -8,6 +8,14 @@ env:
 on:
   workflow_dispatch:  # 手动触发
     inputs:
+      repo_source:
+          description: 代码仓库来源
+          type: choice
+          options:
+            - GitHub
+            - Gitee
+          required: true
+          default: GitHub
       target_branch:
         description: '输入要编译的分支名'
         required: true
@@ -27,11 +35,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
+        if: inputs.repo_source == 'GitHub'
         uses: actions/checkout@v4
         with:
           repository: ${{ env.REPO_URL }}
           ref: ${{ inputs.target_branch }}
           fetch-depth: 1
+          
+      - name: Checkout Gitee Code
+        if: inputs.repo_source == 'Gitee'
+        uses: yanglbme/gitee-clone-action@main
+        with:
+          owner: cyh92
+          repo: media
+          token: ${{ secrets.MY_GITEE_TOKEN }}
+          branch: ${{ inputs.target_branch }}
+          depth: 1
 
       # ====================== 替换 Gradle 下载源为腾讯云 ======================
       - name: Replace Gradle Distribution URL with Tencent Mirror
