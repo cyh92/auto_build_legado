@@ -42,15 +42,12 @@ jobs:
           ref: ${{ inputs.target_branch }}
           fetch-depth: 1
           
-      - name: Checkout Gitee Code
+      - name: Clone Gitee 代码
         if: inputs.repo_source == 'Gitee'
-        uses: yanglbme/gitee-clone-action@main
-        with:
-          owner: cyh92
-          repo: media
-          token: ${{ secrets.MY_GITEE_TOKEN }}
-          branch: ${{ inputs.target_branch }}
-          depth: 1
+        run: |
+          # 清空当前目录，避免 git clone . 报错目录非空
+          rm -rf ./*
+          git clone -b ${{ inputs.target_branch }} --depth 1 https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/media.git .
 
       # ====================== 替换 Gradle 下载源为腾讯云 ======================
       - name: Replace Gradle Distribution URL with Tencent Mirror
