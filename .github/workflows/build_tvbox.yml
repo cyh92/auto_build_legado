@@ -25,6 +25,9 @@ jobs:
           - userName: cyh92
             repoName: TVBoxOS
             branchName: cyh-dev
+          - userName: cyh92
+            repoName: XiaoBox
+            branchName: cyh-dev
           - userName: q215613905
             repoName: TVBoxOS
             branchName: main
