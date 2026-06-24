@@ -22,6 +22,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - userName: cyh92
+            repoName: TVBoxOS
+            branchName: cyh-dev
           - userName: q215613905
             repoName: TVBoxOS
             branchName: main
