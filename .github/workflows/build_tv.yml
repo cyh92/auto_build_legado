@@ -48,7 +48,7 @@ jobs:
       - name: 复制签名文件
         run: |
           ls            
-          cp -f tv/fm-tv.jks ok-tv/app/fm-tv.jks
+          cp -f sign/fm-tv.jks ok-tv/app/fm-tv.jks
           cd ok-tv/app
           ls
 
