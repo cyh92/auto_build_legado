@@ -187,8 +187,8 @@ jobs:
         uses: ncipollo/release-action@v1
         if: ${{ env.commit }}
         with:
-          name: ${{ env.tag }}
-          tag: ${{ env.tag }}
+          name: ${{ matrix.userName }}-${{ matrix.repoName }}-${{ env.tag }}
+          tag: ${{ matrix.userName }}-${{ matrix.repoName }}-${{ env.tag }}
           bodyFile: TVBoxOSC/apk/${{ matrix.userName }}-Release.log
           allowUpdates: true
           removeArtifacts: true
