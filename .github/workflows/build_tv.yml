@@ -27,7 +27,7 @@ jobs:
       - name: 检出当前仓库
         uses: actions/checkout@v4
           # 1. 直接用 git clone 拉取 Gitee 仓库（彻底修复来源问题）
-      - name: 克隆 Gitee ok-tv 代码 (new-fm 分支)
+      - name: 克隆 Gitee ok-tv 代码 (${{ github.event.inputs.branch }} 分支)
         run: |
           git clone -b ${{ github.event.inputs.branch }} ${{ github.event.inputs.url }} ok-tv
 
