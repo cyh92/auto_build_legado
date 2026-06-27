@@ -81,11 +81,9 @@ jobs:
          chmod +x gradlew
           if [[ "${{ inputs.add_suffix }}" == "true" ]]; then
           sed -i '/^        release {/,/^        }/ s/^        }/        applicationIdSuffix ".cyh"\n        }/' app/build.gradle
-          cat app/build.gradle
-            ./gradlew assembleRelease
-          else
-            ./gradlew assembleRelease
           fi
+          cat app/build.gradle
+          ./gradlew assembleRelease
 
       # ================= 核心修改 =================
       # 1. 创建 apks 文件夹
