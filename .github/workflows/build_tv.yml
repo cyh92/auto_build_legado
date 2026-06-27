@@ -80,7 +80,7 @@ jobs:
         run: |
          chmod +x gradlew
           if [[ "${{ inputs.add_suffix }}" == "true" ]]; then
-          sed -i '/^        release {/,/^        }/ s/^        }/        applicationIdSuffix ".cyh"\n        }/' app/build.gradle
+          sed -i '/buildTypes/,/^}/ { /release {/,/}/ s/}/        applicationIdSuffix ".cyh"\n}/ }' app/build.gradle
           fi
           cat app/build.gradle
           ./gradlew assembleRelease
