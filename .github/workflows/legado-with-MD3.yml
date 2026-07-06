@@ -306,7 +306,7 @@ jobs:
         run: |
           LAST_TAG="${{ needs.prepare.outputs.latest_tag }}"
           IS_RELEASE="${{ needs.prepare.outputs.is_release }}"
-          
+          ls
           COMMIT_LOG=""
           #$(git log "$LAST_TAG"..HEAD --pretty=format:"* %s" --no-merges)
           
