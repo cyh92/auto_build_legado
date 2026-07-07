@@ -83,6 +83,187 @@ jobs:
           
           rm -rf demos
           rm -rf libraries/test*
+      - name: Inject stub classes for missing media3 customizations
+        shell: bash
+        run: |
+          # FongMi/media public repo is missing custom classes that the app expects:
+          #   MpvPlayer, MpvPlayerConfig, DiskPreloadManager, PlayerSeekView
+          # Create minimal stubs so the AARs compile. isAvailable() returns false
+          # so the MPV code path is never used at runtime.
+          EXO=libraries/exoplayer/src/main/java
+          UI=libraries/ui/src/main/java
+
+          mkdir -p "$EXO/androidx/media3/mpvplayer"
+          mkdir -p "$EXO/androidx/media3/exoplayer/source/preload"
+
+          cat > "$EXO/androidx/media3/mpvplayer/MpvPlayer.java" << 'STUB'
+          package androidx.media3.mpvplayer;
+
+          import android.content.Context;
+          import androidx.media3.common.ForwardingPlayer;
+          import androidx.media3.common.MediaItem;
+          import androidx.media3.exoplayer.SimpleExoPlayer;
+
+          public class MpvPlayer extends ForwardingPlayer {
+
+              public static boolean isAvailable() {
+                  return false;
+              }
+
+              private MpvPlayer(SimpleExoPlayer player) {
+                  super(player);
+              }
+
+              public void addSubtitle(MediaItem subtitle) {}
+
+              public void setDecode(int decode) {}
+
+              public void setSubtitleOptions(MpvPlayerConfig config) {}
+
+              public static class Builder {
+                  private final Context context;
+                  private int decode;
+                  private MpvPlayerConfig config;
+
+                  public Builder(Context context) {
+                      this.context = context;
+                  }
+
+                  public Builder setDecode(int decode) {
+                      this.decode = decode;
+                      return this;
+                  }
+
+                  public Builder setConfig(MpvPlayerConfig config) {
+                      this.config = config;
+                      return this;
+                  }
+
+                  public MpvPlayer build() {
+                      return new MpvPlayer(new SimpleExoPlayer.Builder(context).build());
+                  }
+              }
+          }
+          STUB
+
+          cat > "$EXO/androidx/media3/mpvplayer/MpvPlayerConfig.java" << 'STUB'
+          package androidx.media3.mpvplayer;
+
+          import android.content.Context;
+          import java.io.File;
+
+          public class MpvPlayerConfig {
+
+              public static final String VIDEO_OUTPUT_GPU_NEXT = "gpu-next";
+
+              private MpvPlayerConfig(Builder builder) {}
+
+              public static class Builder {
+                  public Builder() {}
+
+                  public Builder setDefaultUserAgent(String userAgent) { return this; }
+
+                  public Builder setHlsHttpPersistent(boolean enabled) { return this; }
+
+                  public Builder addConfigDirectory(File dir) { return this; }
+
+                  public Builder addAndroidFontConfig(File configDir, File cacheDir) { return this; }
+
+                  public Builder addAndroidDefaults(String videoOutput, File cacheDir) { return this; }
+
+                  public Builder addTlsCaFileFromAsset(Context context, String asset, String dest) { return this; }
+
+                  public Builder addPostInitStringOption(String key, String value) { return this; }
+
+                  public Builder addPreInitStringOption(String key, String value) { return this; }
+
+                  public Builder addDiskCacheOptions(File cacheDir, int timeSeconds, int sizeMb) { return this; }
+
+                  public Builder addAndroidSubtitleOptions(Context context, boolean caption, double position, double scale) { return this; }
+
+                  public MpvPlayerConfig build() {
+                      return new MpvPlayerConfig(this);
+                  }
+              }
+          }
+          STUB
+
+          cat > "$EXO/androidx/media3/exoplayer/source/preload/DiskPreloadManager.java" << 'STUB'
+          package androidx.media3.exoplayer.source.preload;
+
+          import androidx.media3.common.MediaItem;
+          import androidx.media3.common.PriorityTaskManager;
+          import androidx.media3.datasource.DataSource;
+          import androidx.media3.datasource.cache.Cache;
+          import androidx.media3.exoplayer.ExoPlayer;
+          import androidx.media3.exoplayer.RenderersFactory;
+
+          public class DiskPreloadManager {
+
+              public DiskPreloadManager() {}
+
+              public void start(ExoPlayer player, MediaItem mediaItem, Options options) {}
+
+              public void release() {}
+
+              public static class Builder {
+                  public Builder(Cache cache, DataSource.Factory dataSourceFactory, RenderersFactory renderersFactory) {}
+
+                  public Builder setPriorityTaskManager(PriorityTaskManager priorityTaskManager) {
+                      return this;
+                  }
+
+                  public DiskPreloadManager build() {
+                      return new DiskPreloadManager();
+                  }
+              }
+
+              public static class Options {
+                  public static Builder builder() {
+                      return new Builder();
+                  }
+
+                  public static class Builder {
+                      public Builder setDurationMs(long durationMs) { return this; }
+
+                      public Builder setMaxThreads(int maxThreads) { return this; }
+
+                      public Options build() {
+                          return new Options();
+                      }
+                  }
+              }
+          }
+          STUB
+
+          cat > "$UI/androidx/media3/ui/PlayerSeekView.java" << 'STUB'
+          package androidx.media3.ui;
+
+          import android.content.Context;
+          import android.util.AttributeSet;
+
+          public class PlayerSeekView extends PlayerView {
+
+              public PlayerSeekView(Context context) {
+                  super(context);
+              }
+
+              public PlayerSeekView(Context context, AttributeSet attrs) {
+                  super(context, attrs);
+              }
+
+              public PlayerSeekView(Context context, AttributeSet attrs, int defStyleAttr) {
+                  super(context, attrs, defStyleAttr);
+              }
+          }
+          STUB
+
+          echo "Stub classes created:"
+          find media3-src -name "MpvPlayer.java" -o -name "MpvPlayerConfig.java" -o -name "DiskPreloadManager.java" -o -name "PlayerSeekView.java" | sort
+
+
+
+          
       - name: Grant execute permission
         run: chmod +x gradlew
 
