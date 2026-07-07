@@ -288,7 +288,7 @@ jobs:
           done < move.txt
           # 收集完成后列出所有复制过来的aar文件
           echo "===== 已收集的AAR文件列表 ====="
-          ls -la release_aars/
+          ls release_aars/
 
       # 复制 AAR 到 ok-tv 仓库
       - name: Clone → Copy AAR → Commit → Push to ok-tv
