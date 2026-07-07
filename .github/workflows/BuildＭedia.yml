@@ -259,7 +259,7 @@ jobs:
           STUB
 
           echo "Stub classes created:"
-          find media3-src -name "MpvPlayer.java" -o -name "MpvPlayerConfig.java" -o -name "DiskPreloadManager.java" -o -name "PlayerSeekView.java" | sort
+          find . -name "MpvPlayer.java" -o -name "MpvPlayerConfig.java" -o -name "DiskPreloadManager.java" -o -name "PlayerSeekView.java" | sort
 
 
 
