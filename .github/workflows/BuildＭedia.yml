@@ -282,10 +282,22 @@ jobs:
         run: |
           mkdir -p release_aars
           if [ -f "move.txt" ]; then
-            echo "找到 move.txt，按文件列表复制指定AAR"
+           echo "✅ 检测到 move.txt，开始按列表收集"
+            echo "=== move.txt 内容 ==="
+            cat move.txt
+            echo "======================"
+      
             while IFS= read -r aar_name || [ -n "$aar_name" ]; do
-              aar_name=$(echo "$aar_name" | xargs)
-              if [ -z "$aar_name" ]; then continue; fi
+              # 去除首尾空白、换行、\r 回车符（解决Windows换行）
+              aar_name=$(echo "$aar_name" | tr -d '\r' | xargs)
+              if [ -z "$aar_name" ]; then
+                echo "⏭ 跳过空行"
+                continue
+              fi
+              echo "🔍 正在查找文件：$aar_name"
+              # 先打印找到的文件路径，确认是否匹配到
+              find ./libraries -name "$aar_name" -type f
+              # 复制文件
               find ./libraries -name "$aar_name" -type f -exec cp {} release_aars/ \;
             done < move.txt
           else
