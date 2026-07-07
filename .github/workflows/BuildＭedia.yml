@@ -26,6 +26,11 @@ on:
         required: true
         default: false
         type: boolean
+      custom:
+        description: '添加自定义函数'
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -84,6 +89,7 @@ jobs:
           rm -rf demos
           rm -rf libraries/test*
       - name: Inject stub classes for missing media3 customizations
+        if: inputs.custom == true
         shell: bash
         run: |
           # FongMi/media public repo is missing custom classes that the app expects:
