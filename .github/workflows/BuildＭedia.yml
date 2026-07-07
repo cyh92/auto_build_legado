@@ -281,11 +281,17 @@ jobs:
       - name: Collect only AAR in move.txt
         run: |
           mkdir -p release_aars
-          while IFS= read -r aar_name || [ -n "$aar_name" ]; do
-            aar_name=$(echo "$aar_name" | xargs)
-            if [ -z "$aar_name" ]; then continue; fi
-            find ./libraries -name "$aar_name" -type f -exec cp {} release_aars/ \;
-          done < move.txt
+          if [ -f "move.txt" ]; then
+            echo "找到 move.txt，按文件列表复制指定AAR"
+            while IFS= read -r aar_name || [ -n "$aar_name" ]; do
+              aar_name=$(echo "$aar_name" | xargs)
+              if [ -z "$aar_name" ]; then continue; fi
+              find ./libraries -name "$aar_name" -type f -exec cp {} release_aars/ \;
+            done < move.txt
+          else
+            echo "未找到 move.txt，递归复制 libraries 下所有AAR文件（不限层级）"
+            find ./libraries -name "*.aar" -type f -exec cp {} release_aars/ \;
+          fi
           # 收集完成后列出所有复制过来的aar文件
           echo "===== 已收集的AAR文件列表 ====="
           ls release_aars/
