@@ -92,8 +92,7 @@ jobs:
           # so the MPV code path is never used at runtime.
           EXO=libraries/exoplayer/src/main/java
           UI=libraries/ui/src/main/java
-          SEEK_VIEW_FILE="$UI/androidx/media3/ui/PlayerSeekView.java"
-          if [ ! -f "$SEEK_VIEW_FILE" ]; then
+          
           mkdir -p "$EXO/androidx/media3/mpvplayer"
           mkdir -p "$EXO/androidx/media3/exoplayer/source/preload"
 
@@ -261,10 +260,7 @@ jobs:
 
           echo "Stub classes created:"
           find . -name "MpvPlayer.java" -o -name "MpvPlayerConfig.java" -o -name "DiskPreloadManager.java" -o -name "PlayerSeekView.java" | sort
-
-       fi
-
-          
+               
       - name: Grant execute permission
         run: chmod +x gradlew
 
