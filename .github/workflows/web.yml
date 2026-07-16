@@ -2,11 +2,16 @@ name: Build Web (git clone 拉取)
 
 on:
   workflow_dispatch:    # 手动触发
+   inputs: 
+      defaultBranch:
+        description: '使用分支'
+        required: true
+        default: 'new-leg-team'       
 
 env:
   # 目标仓库（你指定的）
   REPO_URL: https://gitee.com/cyh92/legado.git
-  BRANCH: new-leg-team
+  BRANCH: ${{ github.event.inputs.defaultBranch }}
   WEB_DIST_PATH: app/src/main/assets/web/vue/
 
 jobs:
