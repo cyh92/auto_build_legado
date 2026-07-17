@@ -110,8 +110,8 @@ jobs:
           构建分支：${{ github.event.inputs.defaultBranch }}
           源码仓库：${{ github.event.inputs.defaultUrl }}
           由 GitHub Actions 自动打包发布"
-          CREATE_RES=$(curl -X POST --header 'Content-Type: application/json;charset=UTF-8' '${API_URL}' -d '{"access_token":"${{ secrets.MY_GITEE_TOKEN }}","tag_name":"${TAG_NAME}","name":"${RELEASE_TITLE}","body":"${BODY}","target_commitish":"${TARGET_BRANCH}"}')
-          
+          #CREATE_RES=$(curl -X POST --header 'Content-Type: application/json;charset=UTF-8' '${API_URL}' -d '{"access_token":"${{ secrets.MY_GITEE_TOKEN }}","tag_name":"${TAG_NAME}","name":"${RELEASE_TITLE}","body":"${BODY}","target_commitish":"${TARGET_BRANCH}"}')
+          CREATE_RES=$(curl -X POST -H "Content-Type: application/json;charset=UTF-8" "${API_URL}" -d "{\"access_token\":\"${{ secrets.MY_GITEE_TOKEN }}\",\"tag_name\":\"${TAG_NAME}\",\"name\":\"${RELEASE_TITLE}\",\"body\":\"${BODY}\",\"target_commitish\":\"${TARGET_BRANCH}\"}")
           # 提取release id
           RELEASE_ID=$(echo "$CREATE_RES" | jq -r '.id')
           if [[ "$RELEASE_ID" == "null" || -z "$RELEASE_ID" ]]; then
