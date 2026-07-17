@@ -105,7 +105,7 @@ jobs:
           TARGET_BRANCH: ${{ github.event.inputs.defaultBranch }}
         run: |
           # 2. 创建Gitee Release
-          API_URL="https://gitee.com/api/v5/repos/${GITEE_REPO}/releases"
+          API_URL="https://gitee.com/api/v5/repos/cyh92/legado/releases"
           BODY="自动构建发布版本 ${TAG_NAME}
           构建分支：${{ github.event.inputs.defaultBranch }}
           源码仓库：${{ github.event.inputs.defaultUrl }}
