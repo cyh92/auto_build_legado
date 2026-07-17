@@ -14,7 +14,7 @@ on:
       defaultBranch:
         description: '使用分支'
         required: true
-        default: 'new-leg'          
+        default: 'new-dev'          
   push:
     paths:
       - '.last_upstream_commit'  # 当检测到上游更新时触发
@@ -124,7 +124,7 @@ jobs:
           for apk in ${APK_DIR}/*.apk; do
             if [ -f "$apk" ]; then
               echo "正在上传附件: $apk"             
-              curl -s -X POST "$API_URL/$RELEASE_ID/attach_files?access_token=${MY_GITEE_TOKEN}&owner=${GITEE_OWNER}&repo=${GITEE_REPO}&release_id=${RELEASE_ID}" \
+              curl -s -X POST "$API_URL/$RELEASE_ID/attach_files?access_token=${MY_GITEE_TOKEN}&owner=cyh92&repo=legado&release_id=${RELEASE_ID}" \
                 -F "file=@$apk"
             fi
           done
