@@ -104,10 +104,6 @@ jobs:
           APK_DIR: ${{ env.APP_UPLOAD }}
           TARGET_BRANCH: ${{ github.event.inputs.defaultBranch }}
         run: |
-          # 1. 初始化 gitee 远程并推送tag
-          git remote add gitee https://${MY_GITEE_TOKEN}@gitee.com/${GITEE_REPO}.git || true
-          git push gitee ${TAG_NAME} --force || true
-
           # 2. 创建Gitee Release
           API_URL="https://gitee.com/api/v5/repos/${GITEE_REPO}/releases"
           BODY="自动构建发布版本 ${TAG_NAME}
