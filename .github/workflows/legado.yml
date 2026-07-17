@@ -102,6 +102,7 @@ jobs:
           TAG_NAME: release-${{ env.APP_UPLOAD_NAME }}-${{ steps.date.outputs.datetime }}
           RELEASE_TITLE: ${{ env.APP_UPLOAD_NAME }}-${{ steps.date.outputs.datetime }}
           APK_DIR: ${{ env.APP_UPLOAD }}
+          TARGET_BRANCH: ${{ github.event.inputs.defaultBranch }}
         run: |
           # 1. 初始化 gitee 远程并推送tag
           git remote add gitee https://${MY_GITEE_TOKEN}@gitee.com/${GITEE_REPO}.git || true
@@ -114,16 +115,15 @@ jobs:
           源码仓库：${{ github.event.inputs.defaultUrl }}
           由 GitHub Actions 自动打包发布"
 
-          CREATE_RES=$(curl -s -X POST "$API_URL" \
-            -H "Authorization: token ${MY_GITEE_TOKEN}" \
-            -H "Content-Type: application/json" \
+          CREATE_RES=$(curl -s -X POST \
+            --header 'Content-Type: application/json;charset=UTF-8' \
+            "${API_URL}" \
             -d '{
+              "access_token": "'"${MY_GITEE_TOKEN}"'",
               "tag_name": "'"${TAG_NAME}"'",
               "name": "'"${RELEASE_TITLE}"'",
               "body": "'"${BODY}"'",
-              "draft": false,
-              "prerelease": false,
-              "target_commitish": "master"
+              "target_commitish": "'"${TARGET_BRANCH}"'"
             }')
 
           # 提取release id
@@ -137,9 +137,8 @@ jobs:
           # 3. 上传所有APK附件
           for apk in ${APK_DIR}/*.apk; do
             if [ -f "$apk" ]; then
-              echo "正在上传附件: $apk"
-              curl -s -X POST "$API_URL/$RELEASE_ID/attach_files" \
-                -H "Authorization: token ${MY_GITEE_TOKEN}" \
+              echo "正在上传附件: $apk"             
+              curl -s -X POST "$API_URL/$RELEASE_ID/attach_files?access_token=${MY_GITEE_TOKEN}&owner=${GITEE_OWNER}&repo=${GITEE_REPO}&release_id=${RELEASE_ID}" \
                 -F "file=@$apk"
             fi
           done
