@@ -14,7 +14,12 @@ on:
       defaultBranch:
         description: '使用分支'
         required: true
-        default: 'new-dev'          
+        default: 'new-dev'     
+      publishGitee:
+        description: '是否同步发布到 Gitee Release'
+        required: false
+        type: boolean
+        default: false
   push:
     paths:
       - '.last_upstream_commit'  # 当检测到上游更新时触发
@@ -95,7 +100,7 @@ jobs:
           
       # ========== 发布Gitee Release（使用MY_GITEE_TOKEN） ==========
       - name: 同步Tag并发布Gitee Release
-        if: success()
+        if: success() && github.event.inputs.publishGitee == true
         env:
           MY_GITEE_TOKEN: ${{ secrets.MY_GITEE_TOKEN }}
           GITEE_REPO: cyh92/legado
