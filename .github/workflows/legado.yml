@@ -124,8 +124,14 @@ jobs:
           for apk in ${APK_DIR}/*.apk; do
             if [ -f "$apk" ]; then
               echo "正在上传附件: $apk"             
-              curl -s -X POST "$API_URL/$RELEASE_ID/attach_files?access_token=${MY_GITEE_TOKEN}&owner=cyh92&repo=legado&release_id=${RELEASE_ID}" \
-                -F "file=@$apk"
+              curl -s -X POST \
+              -F "access_token=${MY_GITEE_TOKEN}" \
+              -F "owner=cyh92" \
+              -F "repo=legado" \
+              -F "release_id=${RELEASE_ID}" \
+              -F "file=@$apk" \
+              "$API_URL/${RELEASE_ID}/attach_files"
+            echo "上传完成：$apk"
             fi
           done
           echo "所有APK附件上传完成"
