@@ -92,3 +92,55 @@ jobs:
           files: ${{ env.APP_UPLOAD }}/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      # ========== 发布Gitee Release（使用MY_GITEE_TOKEN） ==========
+      - name: 同步Tag并发布Gitee Release
+        if: success()
+        env:
+          MY_GITEE_TOKEN: ${{ secrets.MY_GITEE_TOKEN }}
+          GITEE_REPO: cyh92/legado
+          TAG_NAME: release-${{ env.APP_UPLOAD_NAME }}-${{ steps.date.outputs.datetime }}
+          RELEASE_TITLE: ${{ env.APP_UPLOAD_NAME }}-${{ steps.date.outputs.datetime }}
+          APK_DIR: ${{ env.APP_UPLOAD }}
+        run: |
+          # 1. 初始化 gitee 远程并推送tag
+          git remote add gitee https://${MY_GITEE_TOKEN}@gitee.com/${GITEE_REPO}.git || true
+          git push gitee ${TAG_NAME} --force || true
+
+          # 2. 创建Gitee Release
+          API_URL="https://gitee.com/api/v5/repos/${GITEE_REPO}/releases"
+          BODY="自动构建发布版本 ${TAG_NAME}
+          构建分支：${{ github.event.inputs.defaultBranch }}
+          源码仓库：${{ github.event.inputs.defaultUrl }}
+          由 GitHub Actions 自动打包发布"
+
+          CREATE_RES=$(curl -s -X POST "$API_URL" \
+            -H "Authorization: token ${MY_GITEE_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "tag_name": "'"${TAG_NAME}"'",
+              "name": "'"${RELEASE_TITLE}"'",
+              "body": "'"${BODY}"'",
+              "draft": false,
+              "prerelease": false,
+              "target_commitish": "master"
+            }')
+
+          # 提取release id
+          RELEASE_ID=$(echo "$CREATE_RES" | jq -r '.id')
+          if [[ "$RELEASE_ID" == "null" || -z "$RELEASE_ID" ]]; then
+            echo "创建Gitee Release失败，返回：$CREATE_RES"
+            exit 1
+          fi
+          echo "Gitee Release 创建成功 ID: $RELEASE_ID"
+
+          # 3. 上传所有APK附件
+          for apk in ${APK_DIR}/*.apk; do
+            if [ -f "$apk" ]; then
+              echo "正在上传附件: $apk"
+              curl -s -X POST "$API_URL/$RELEASE_ID/attach_files" \
+                -H "Authorization: token ${MY_GITEE_TOKEN}" \
+                -F "file=@$apk"
+            fi
+          done
+          echo "所有APK附件上传完成"
