@@ -32,6 +32,6 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
-        if: github.event.inputs.publishGitee
+        if: github.event.inputs.publishGitee=='true'
         run: |
           echo "publishGitee 值：${{ github.event.inputs.publishGitee }}"
