@@ -99,7 +99,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # ========== 发布Gitee Release（使用MY_GITEE_TOKEN） ==========
       - name: 同步Tag并发布Gitee Release
-        if: success() && github.event.inputs.publishGitee == true
+        if: success() && github.event.inputs.publishGitee == 'true'
         env:
           MY_GITEE_TOKEN: ${{ secrets.MY_GITEE_TOKEN }}
           GITEE_REPO: cyh92/legado
