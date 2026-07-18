@@ -7,6 +7,12 @@ on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs: 
+      publishGitee:
+        description: '是否同步发布到 Gitee Release'
+        required: false
+        type: boolean
+        default: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -26,5 +32,6 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
+        #if: github.event.inputs.publishGitee == true
         run: |
-          curl -X POST --header 'Content-Type: application/json;charset=UTF-8' 'https://gitee.com/api/v5/repos/cyh92/legado/releases' -d '{"access_token":"${{ secrets.MY_GITEE_TOKEN }}","tag_name":"legado_202607162145","name":"legado_20260716121","body":"legado_20260716","target_commitish":"new-dev"}'
+          echo "publishGitee 值：${{ github.event.inputs.publishGitee }}"
