@@ -84,16 +84,16 @@ jobs:
         run: |
           source $GITHUB_WORKSPACE/action_app_build.sh
           app_build
-      - name: Get current date
+      - name: Get current Version
         id: date
-        run: echo "datetime=$(date +%Y%m%d%H%M%S%3N)" >> $GITHUB_OUTPUT
+        run: echo "version=$(date -d "8 hour" -u +3.%y.%m%d%H%M)" >> $GITHUB_OUTPUT
 
       - name: 自动发布 Release
         if: success()
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ env.APP_NAME }}-${{ steps.date.outputs.datetime }}
-          tag_name: release-${{ env.APP_NAME }}-${{ steps.date.outputs.datetime }}
+          name: ${{ env.APP_NAME }}_app_${{ steps.date.outputs.version }}
+          tag_name: ${{ steps.date.outputs.version }}
           files: ${{ env.APP_UPLOAD }}/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -103,8 +103,8 @@ jobs:
         env:
           MY_GITEE_TOKEN: ${{ secrets.MY_GITEE_TOKEN }}
           GITEE_REPO: cyh92/legado
-          TAG_NAME: release-${{ env.APP_NAME }}-${{ steps.date.outputs.datetime }}
-          RELEASE_TITLE: ${{ env.APP_NAME }}-${{ steps.date.outputs.datetime }}
+          TAG_NAME: ${{ steps.date.outputs.version }}
+          RELEASE_TITLE: ${{ env.APP_NAME }}_app_${{ steps.date.outputs.version }}
           APK_DIR: ${{ env.APP_UPLOAD }}
           TARGET_BRANCH: ${{ github.event.inputs.defaultBranch }}
         run: |
