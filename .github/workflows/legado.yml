@@ -118,7 +118,7 @@ jobs:
           TARGET_BRANCH: ${{ github.event.inputs.defaultBranch }}
         run: |
           # 2. 创建Gitee Release
-          NOTE_FILE="${{ github.workspace }}/release-notes.md"
+          NOTE_FILE="${{ env.APP_WORKSPACE }}/release-notes.md"
           if [[ ! -f "$NOTE_FILE" ]]; then
             echo "ERROR: 发布日志文件不存在 $NOTE_FILE"
             exit 1
