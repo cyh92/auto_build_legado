@@ -88,12 +88,21 @@ jobs:
         id: date
         run: echo "version=$(date -d "8 hour" -u +3.%y.%m%d%H%M)" >> $GITHUB_OUTPUT
 
+      - name: Prepare Release Notes
+        run: |
+          bash .github/legado/extract-latest-update.sh \
+            $APP_WORKSPACE/app/src/main/assets/updateLog.md \
+            > "$APP_WORKSPACE/release-notes.md"
+
       - name: 自动发布 Release
         if: success()
-        uses: softprops/action-gh-release@v1
+        uses:  softprops/action-gh-release@v1
         with:
           name: ${{ env.APP_NAME }}_app_${{ steps.date.outputs.version }}
           tag_name: ${{ steps.date.outputs.version }}
+          body_path: $APP_WORKSPACE/release-notes.md
+          draft: false
+          prerelease: false
           files: ${{ env.APP_UPLOAD }}/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
