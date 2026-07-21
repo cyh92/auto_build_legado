@@ -128,6 +128,7 @@ jobs:
           
           API_URL="https://gitee.com/api/v5/repos/cyh92/legado/releases"
           BODY="自动构建发布版本 ${TAG_NAME}
+          构建分支：${TARGET_BRANCH}
           ${RELEASE_NOTE_CONTENT}"
           
           #CREATE_RES=$(curl -X POST --header 'Content-Type: application/json;charset=UTF-8' '${API_URL}' -d '{"access_token":"${{ secrets.MY_GITEE_TOKEN }}","tag_name":"${TAG_NAME}","name":"${RELEASE_TITLE}","body":"${BODY}","target_commitish":"${TARGET_BRANCH}"}')
