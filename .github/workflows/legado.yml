@@ -100,7 +100,7 @@ jobs:
         with:
           name: ${{ env.APP_NAME }}_app_${{ steps.date.outputs.version }}
           tag_name: ${{ steps.date.outputs.version }}
-          body_path: ${{ github.workspace }}/legado/release-notes.md
+          body_path: ${{ env.APP_WORKSPACE }}/release-notes.md
           draft: false
           prerelease: false
           files: ${{ env.APP_UPLOAD }}/*.apk
