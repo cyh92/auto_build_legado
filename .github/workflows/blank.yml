@@ -70,4 +70,4 @@ jobs:
           bash .github/legado/extract-latest-update.sh \
             $APP_WORKSPACE/app/src/main/assets/updateLog.md \
             > "$APP_WORKSPACE/release-notes.md"
-            echo $APP_WORKSPACE/release-notes.md
+            cat $APP_WORKSPACE/release-notes.md
