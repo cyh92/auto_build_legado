@@ -118,11 +118,18 @@ jobs:
           TARGET_BRANCH: ${{ github.event.inputs.defaultBranch }}
         run: |
           # 2. 创建Gitee Release
+          NOTE_FILE="${{ github.workspace }}/release-notes.md"
+          if [[ ! -f "$NOTE_FILE" ]]; then
+            echo "ERROR: 发布日志文件不存在 $NOTE_FILE"
+            exit 1
+          fi
+          # 读取日志并转义双引号
+          RELEASE_NOTE_CONTENT=$(cat "$NOTE_FILE" | sed 's/"/\\"/g')
+          
           API_URL="https://gitee.com/api/v5/repos/cyh92/legado/releases"
           BODY="自动构建发布版本 ${TAG_NAME}
-          构建分支：${{ github.event.inputs.defaultBranch }}
-          源码仓库：${{ github.event.inputs.defaultUrl }}
-          由 GitHub Actions 自动打包发布"
+          ${RELEASE_NOTE_CONTENT}"
+          
           #CREATE_RES=$(curl -X POST --header 'Content-Type: application/json;charset=UTF-8' '${API_URL}' -d '{"access_token":"${{ secrets.MY_GITEE_TOKEN }}","tag_name":"${TAG_NAME}","name":"${RELEASE_TITLE}","body":"${BODY}","target_commitish":"${TARGET_BRANCH}"}')
           CREATE_RES=$(curl -X POST -H "Content-Type: application/json;charset=UTF-8" "${API_URL}" -d "{\"access_token\":\"${{ secrets.MY_GITEE_TOKEN }}\",\"tag_name\":\"${TAG_NAME}\",\"name\":\"${RELEASE_TITLE}\",\"body\":\"${BODY}\",\"target_commitish\":\"${TARGET_BRANCH}\"}")
           # 提取release id
