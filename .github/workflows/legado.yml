@@ -96,16 +96,22 @@ jobs:
         shell: bash
         run: |
           source $GITHUB_WORKSPACE/action_legado_myself.sh
-
+          
+      - name: 生成版本号
+        id: date
+        run: |
+          version="3.$(TZ=Asia/Shanghai date +%y%m%d%H%M)"
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "当前版本号: $VERSION"
+          sed -i "s/^def version = .*/def version = \"$VERSION\"/" "$APP_WORKSPACE/app/build.gradle"
+          cat $APP_WORKSPACE/app/build.gradle
+        
       - name: 编译 APK（Release 版本）
         shell: bash
         run: |
           source $GITHUB_WORKSPACE/action_app_build.sh
           app_build
-      - name: Get current Version
-        id: date
-        run: echo "version=$(date -d "8 hour" -u +3.%y.%m%d%H%M)" >> $GITHUB_OUTPUT
-
+      
       - name: Prepare Release Notes
         run: |
           bash .github/legado/extract-latest-update.sh \
