@@ -100,10 +100,13 @@ jobs:
       - name: 生成版本号
         id: date
         run: |
+          # 拼接版本前缀+上海时区年月日时分：格式示例 3.2607251530
           version="3.$(TZ=Asia/Shanghai date +%y%m%d%H%M)"
-          echo "version=$version" >> $GITHUB_OUTPUT
-          echo "当前版本号: $VERSION"
-          sed -i "s/^def version = .*/def version = \"$VERSION\"/" "$APP_WORKSPACE/app/build.gradle"
+          # 标准写法输出变量到 GitHub Actions 上下文
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          # 打印当前生成的版本号
+          echo "当前版本号: $version"
+          sed -i "s/^def version = .*/def version = \"$version\"/" "$APP_WORKSPACE/app/build.gradle"
           cat $APP_WORKSPACE/app/build.gradle
         
       - name: 编译 APK（Release 版本）
