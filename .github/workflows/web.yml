@@ -68,13 +68,6 @@ jobs:
           version="v$(date -d "8 hour" -u +3.%y.%m%d%H)"
           echo "APP_VER=$version" >> $GITHUB_ENV
           echo "版本号：$version"
+          ls ${{ env.WEB_DIST_PATH }}
 
-      # ======================
-      # 提交并推回 Gitee 仓库
-      # ======================
-      - name: 提交构建产物到 Gitee
-        working-directory: repo
-        run: |
-          git add ${{ env.WEB_DIST_PATH }}
-          git commit -m "Bump web ${{ env.APP_VER }} [自动构建]"
-          git push origin ${{ env.BRANCH }}
+      
