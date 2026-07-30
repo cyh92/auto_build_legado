@@ -6,7 +6,7 @@ on:
       defaultBranch:
         description: '使用分支'
         required: true
-        default: 'new-leg-team'       
+        default: 'new-dev'       
 
 env:
   # 目标仓库（你指定的）
@@ -75,8 +75,8 @@ jobs:
         working-directory: repo
         run: |
           ls -lt ${{ env.WEB_DIST_PATH }}assets/
-          #git add ${{ env.WEB_DIST_PATH }}
-          #git commit -m "Bump web ${{ env.APP_VER }} [自动构建]"
-          #git push origin ${{ env.BRANCH }}
+          git add ${{ env.WEB_DIST_PATH }}
+          git commit -m "Bump web ${{ env.APP_VER }} [自动构建]"
+          git push origin ${{ env.BRANCH }}
 
       
