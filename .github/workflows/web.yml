@@ -74,7 +74,7 @@ jobs:
       - name: 提交构建产物到 Gitee
         working-directory: repo
         run: |
-          ls ${{ env.WEB_DIST_PATH }}
+          ls ${{ env.WEB_DIST_PATH }}assets/
           #git add ${{ env.WEB_DIST_PATH }}
           #git commit -m "Bump web ${{ env.APP_VER }} [自动构建]"
           #git push origin ${{ env.BRANCH }}
