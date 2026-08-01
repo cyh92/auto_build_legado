@@ -164,6 +164,21 @@ jobs:
         run: |
           echo "清空18PlusList.txt"
           echo "">$GITHUB_WORKSPACE/app/src/main/assets/18PlusList.txt
+
+      - name: 下载Gitee文件并替换本地文件
+        run: |
+          # 定义文件路径
+          REMOTE_URL="https://raw.giteeusercontent.com/cyh92/legado/raw/new-dev/app/src/main/assets/defaultData/rssSources.json"
+          LOCAL_PATH="$GITHUB_WORKSPACE/app/src/main/assets/defaultData/rssSources.json"
+          
+          # 使用curl下载覆盖本地文件
+          curl -fsSL "$REMOTE_URL" -o "$LOCAL_PATH"
+          
+          # 校验文件是否下载成功
+          if [ ! -f "$LOCAL_PATH" ]; then
+            echo "文件下载失败！"
+            exit 1
+          fi
       - name: Release Apk Sign
         shell: bash
         run: |
