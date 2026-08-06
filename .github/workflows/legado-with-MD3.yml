@@ -1,4 +1,4 @@
-name: legado-MD3-Auto-Release
+name: 构建阅读 MD3 版
 
 on:
   workflow_dispatch:  # 手动触发
