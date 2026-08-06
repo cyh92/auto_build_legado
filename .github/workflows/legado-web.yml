@@ -1,4 +1,4 @@
-name: Build Web (git clone 拉取)
+name: 构建筱筱书阁 Web
 
 on:
   workflow_dispatch:    # 手动触发
