@@ -1,4 +1,4 @@
-name: Build Media3 & Release AAR
+name: 编译 Media3
 
 # ======================= 【可修改变量】 =======================
 env:
