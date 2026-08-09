@@ -122,7 +122,7 @@ jobs:
           GITEE_REPO: cyh92/legado
           TAG_NAME: ${{ steps.date.outputs.version }}
           RELEASE_TITLE: legado_app_${{ steps.date.outputs.version }}
-          APK_DIR: ${{ steps.apk.outputs.files }}
+          APK_DIR: ${{ steps.apk.outputs.files }}//*.apk
           TARGET_BRANCH: ${{ github.event.inputs.defaultBranch }}
         run: |
           # 2. 创建Gitee Release
