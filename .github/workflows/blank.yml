@@ -48,7 +48,7 @@ jobs:
           java-version: 17
       - name: 复制签名文件
         run: |    
-          cp -f $GITHUB_WORKSPACE/.github/legado legado/app/legado.jks
+          cp -f sign/legadov.jks legado/app/legado.jks          
           cd legado/app
           ls
 
