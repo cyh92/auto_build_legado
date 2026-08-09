@@ -90,7 +90,8 @@ jobs:
           bash .github/legado/extract-latest-update.sh \
             $GITHUB_WORKSPACE/legado/app/src/main/assets/updateLog.md \
             > "$GITHUB_WORKSPACE/legado/release-notes.md"
-            
+
+          cat $GITHUB_WORKSPACE/legado/release-notes.md
       - name: 自动发布 Release
         if: success()
         uses:  softprops/action-gh-release@v1
