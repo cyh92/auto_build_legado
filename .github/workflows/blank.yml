@@ -57,4 +57,4 @@ jobs:
         working-directory: ./legado
         run: |
          chmod +x gradlew
-         ./gradlew assembleapprelease -ParmOnly=true --build-cache --parallel --daemon --warning-mode all
+         ./gradlew assembleApprelease -ParmOnly=true --build-cache --parallel --daemon --warning-mode all
