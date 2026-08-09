@@ -53,8 +53,53 @@ jobs:
           cd legado/app
           ls
 
+      - name: 生成版本号
+        id: date
+        run: |
+          # 拼接版本前缀+上海时区年月日时分：格式示例 3.26072515
+          version="3.$(TZ=Asia/Shanghai date +%y%m%d%H)"
+          # 标准写法输出变量到 GitHub Actions 上下文
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          # 打印当前生成的版本号
+          echo "当前版本号: $version"
+          sed -i "s/^def version = .*/def version = \"$version\"/" "$GITHUB_WORKSPACE/legado/app/build.gradle"
+          cat $GITHUB_WORKSPACE/legado/app/build.gradle
+
       - name: 构建 Release APK
         working-directory: ./legado
         run: |
          chmod +x gradlew
          ./gradlew assembleApprelease -ParmOnly=true --build-cache --parallel --daemon --warning-mode all
+
+        # 1. 创建 apks 文件夹
+      - name: 创建 apks 文件夹
+        run: mkdir -p apks
+
+      # 2. 复制所有 release apk 到 apks 目录
+      - name: 复制所有 APK 到 apks 目录
+        run: |
+          find legado/app/build/outputs/apk -name "*.apk" | grep -v debug | xargs -I {} cp {} apks/
+
+      # 3. 读取 apks 目录下所有文件
+      - name: 获取所有 APK
+        id: apk
+        run: echo "files=apks/*" >> $GITHUB_OUTPUT
+
+      - name: Prepare Release Notes
+        run: |
+          bash .github/legado/extract-latest-update.sh \
+            $GITHUB_WORKSPACE/legado/app/src/main/assets/updateLog.md \
+            > "$GITHUB_WORKSPACE/legado/release-notes.md"
+            
+      - name: 自动发布 Release
+        if: success()
+        uses:  softprops/action-gh-release@v1
+        with:
+          name: legado_app_${{ steps.date.outputs.version }}
+          tag_name: ${{ steps.date.outputs.version }}
+          body_path: $GITHUB_WORKSPACE/legado/release-notes.md
+          draft: false
+          prerelease: false
+          files: ${{ steps.apk.outputs.files }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
