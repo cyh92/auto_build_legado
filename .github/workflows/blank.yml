@@ -53,30 +53,8 @@ jobs:
           cd legado/app
           ls
 
-      - name: 设置构建参数
-        shell: bash
-        env:
-          SECRETS_APP_NAME: "阅读x"
-          SECRETS_GIT_URL: ${{ github.event.inputs.defaultUrl }}
-          SECRETS_BRANCH: ${{ github.event.inputs.defaultBranch }}
-          SECRETS_CHANNEL: "App"
-          SECRETS_SUFFIX: "Pro"
-          SECRETS_LAUNCH_NAME: "阅读.Pro"
-          SECRETS_RENAME: "true"
-          SECRETS_MINIFY: "false"
-          REPO_OWNER: ${{ github.repository_owner }}
-          REPO_ACTOR: ${{ github.actor }}
+      - name: 构建 Release APK
+        working-directory: ./legado
         run: |
-          source $GITHUB_WORKSPACE/action_setenv.sh
-
-      - name: 克隆仓库
-        shell: bash
-        run: |
-          source $GITHUB_WORKSPACE/action_clone.sh
-
-      - name: Prepare Release Notes
-        run: |
-          bash .github/legado/extract-latest-update.sh \
-            $APP_WORKSPACE/app/src/main/assets/updateLog.md \
-            > "$APP_WORKSPACE/release-notes.md"
-            cat $APP_WORKSPACE/release-notes.md
+         chmod +x gradlew
+         ./gradlew assembleapprelease -ParmOnly=true --build-cache --parallel --daemon --warning-mode all
