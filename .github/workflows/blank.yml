@@ -80,6 +80,14 @@ jobs:
       - name: 复制所有 APK 到 apks 目录
         run: |
           find legado/app/build/outputs/apk -name "*.apk" | grep -v debug | xargs -I {} cp {} apks/
+          # 生成文件名
+          bash .github/scripts/collect-apks.sh \
+            $GITHUB_WORKSPACE/legado/app/build/outputs/apk \
+            $GITHUB_WORKSPACE/apks \
+            app \
+            ${{ steps.date.outputs.version }} \
+            "" \
+            arm
 
       # 3. 读取 apks 目录下所有文件
       - name: 获取所有 APK
