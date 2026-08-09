@@ -98,7 +98,7 @@ jobs:
         with:
           name: legado_app_${{ steps.date.outputs.version }}
           tag_name: ${{ steps.date.outputs.version }}
-          body_path: $GITHUB_WORKSPACE/legado/release-notes.md
+          body_path: ${{ github.workspace }}/legado/release-notes.md
           draft: false
           prerelease: false
           files: ${{ steps.apk.outputs.files }}
