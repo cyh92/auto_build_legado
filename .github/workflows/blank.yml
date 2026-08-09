@@ -50,6 +50,7 @@ jobs:
         run: |    
           cp -f sign/legado.jks legado/app/legado.jks    
           sed '$r '"$GITHUB_WORKSPACE/.github/legado/legado.sign"'' $GITHUB_WORKSPACE/legado/gradle.properties -i
+          sed -i "s/^\s*alias libs.plugins.google.services/\/\/&/" $GITHUB_WORKSPACE/legado/app/build.gradle
           cd legado/app
           ls
 
