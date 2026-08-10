@@ -81,7 +81,7 @@ jobs:
         run: |
           find legado/app/build/outputs/apk -name "*.apk" | grep -v debug | xargs -I {} cp {} apks/
           # 生成文件名
-          bash .github/scripts/collect-apks.sh \
+          bash .github/legado/scripts/collect-apks.sh \
             $GITHUB_WORKSPACE/legado/app/build/outputs/apk \
             $GITHUB_WORKSPACE/apks \
             app \
