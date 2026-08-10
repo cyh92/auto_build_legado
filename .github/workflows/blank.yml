@@ -79,7 +79,7 @@ jobs:
       # 2. 复制所有 release apk 到 apks 目录
       - name: 复制所有 APK 到 apks 目录
         run: |
-          find legado/app/build/outputs/apk -name "*.apk" | grep -v debug | xargs -I {} cp {} apks/
+          # find legado/app/build/outputs/apk -name "*.apk" | grep -v debug | xargs -I {} cp {} apks/
           # 生成文件名
           bash .github/legado/scripts/collect-apks.sh \
             $GITHUB_WORKSPACE/legado/app/build/outputs/apk \
@@ -123,7 +123,7 @@ jobs:
           GITEE_REPO: cyh92/legado
           TAG_NAME: ${{ steps.date.outputs.version }}
           RELEASE_TITLE: legado_app_${{ steps.date.outputs.version }}
-          APK_DIR: ${{ steps.apk.outputs.files }}
+          APK_DIR: ${{ github.workspace }}/apks
           TARGET_BRANCH: ${{ github.event.inputs.defaultBranch }}
         run: |
           # 2. 创建Gitee Release
