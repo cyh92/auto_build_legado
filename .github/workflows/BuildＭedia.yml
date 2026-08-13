@@ -21,6 +21,11 @@ on:
         required: true
         default: 'release-1.11.0-fongmi'
         type: string
+      update_branch:
+        description: '输入源仓库分支'
+        required: true
+        default: 'fm-new'
+        type: string
       copy_to_oktv:
         description: '是否更新源仓库'
         required: true
@@ -318,7 +323,7 @@ jobs:
         if: ${{ inputs.copy_to_oktv == true }}
         run: |
           cd ..
-          git clone -b fm-new https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/ok-tv.git ok-tv-repo
+          git clone -b ${{inputs.update_branch}} https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/ok-tv.git ok-tv-repo
           cd ok-tv-repo
           
           # 复制AAR
