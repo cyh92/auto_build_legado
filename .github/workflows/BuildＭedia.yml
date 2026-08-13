@@ -19,7 +19,7 @@ on:
       target_branch:
         description: '输入要编译的分支名'
         required: true
-        default: 'release-1.10.1-fongmi'
+        default: 'release-1.11.0-fongmi'
         type: string
       copy_to_oktv:
         description: '是否更新源仓库'
@@ -28,6 +28,11 @@ on:
         type: boolean
       custom:
         description: '添加自定义函数'
+        required: true
+        default: false
+        type: boolean
+      delrow:
+        description: '删除示例和测试库'
         required: true
         default: false
         type: boolean
@@ -73,7 +78,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-      - name: 修复缺失混淆文件
+      - name: 修复缺失混淆文件和移除示例库
+        if: inputs.delrow==true
         run: |
           # 修复缺失混淆文件
           # touch libraries/transformer/proguard-rules.txt
@@ -81,13 +87,12 @@ jobs:
           # touch libraries/effect_lottie/proguard-rules.txt
           # touch libraries/effect/proguard-rules.txt
           # # 移除崩溃的预览Demo模块
-          # sed -i '/demo-/d' build-logic-settings/src/main/kotlin/androidx/media3/buildlogic/Media3Modules.kt
-          # sed -i '/demo/d' settings.gradle
-          
+          # sed -i '/demo/d' settings.gradle          
           # sed -i '/test-/d' build-logic-settings/src/main/kotlin/androidx/media3/buildlogic/Media3Modules.kt
           
-          # rm -rf demos
-          # rm -rf libraries/test*
+          sed '211,244d' build-logic-settings/src/main/kotlin/androidx/media3/buildlogic/Media3Modules.kt
+          rm -rf demos
+          rm -rf libraries/test*
       - name: Inject stub classes for missing media3 customizations
         if: inputs.custom == true
         shell: bash
