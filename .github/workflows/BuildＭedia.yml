@@ -81,13 +81,13 @@ jobs:
           # touch libraries/effect_lottie/proguard-rules.txt
           # touch libraries/effect/proguard-rules.txt
           # # 移除崩溃的预览Demo模块
-          sed -i '/demo-/d' build-logic-settings/src/main/kotlin/androidx/media3/buildlogic/Media3Modules.kt
+          # sed -i '/demo-/d' build-logic-settings/src/main/kotlin/androidx/media3/buildlogic/Media3Modules.kt
           # sed -i '/demo/d' settings.gradle
           
-          sed -i '/test-/d' build-logic-settings/src/main/kotlin/androidx/media3/buildlogic/Media3Modules.kt
+          # sed -i '/test-/d' build-logic-settings/src/main/kotlin/androidx/media3/buildlogic/Media3Modules.kt
           
-          rm -rf demos
-          rm -rf libraries/test*
+          # rm -rf demos
+          # rm -rf libraries/test*
       - name: Inject stub classes for missing media3 customizations
         if: inputs.custom == true
         shell: bash
