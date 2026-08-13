@@ -73,18 +73,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-      - name: Prepare build environment
+      - name: 修复缺失混淆文件
         run: |
           # 修复缺失混淆文件
-          touch libraries/transformer/proguard-rules.txt
-          touch libraries/muxer/proguard-rules.txt
-          touch libraries/effect_lottie/proguard-rules.txt
-          touch libraries/effect/proguard-rules.txt
-          # 移除崩溃的预览Demo模块
-          sed -i '/demo-/d' settings.gradle
-          sed -i '/demo/d' settings.gradle
+          # touch libraries/transformer/proguard-rules.txt
+          # touch libraries/muxer/proguard-rules.txt
+          # touch libraries/effect_lottie/proguard-rules.txt
+          # touch libraries/effect/proguard-rules.txt
+          # # 移除崩溃的预览Demo模块
+          # sed -i '/demo-/d' settings.gradle
+          # sed -i '/demo/d' settings.gradle
           
-          sed -i '/test-/d' settings.gradle
+          # sed -i '/test-/d' settings.gradle
           
           rm -rf demos
           rm -rf libraries/test*
