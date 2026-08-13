@@ -334,7 +334,7 @@ jobs:
           git config user.email "action@github.com"
           
           # 提交变更
-          git add app/libs/*.aar
+          git add -f app/libs/*.aar
           git commit -m "Auto update Media3 AARs (${{ steps.date.outputs.datetime }})"
           
           # 推送到远程fm-new分支
