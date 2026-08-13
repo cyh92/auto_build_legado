@@ -87,7 +87,7 @@ jobs:
           # sed -i '/test-/d' settings.gradle
           
           rm -rf demos
-          rm -rf libraries/test*
+          # rm -rf libraries/test*
       - name: Inject stub classes for missing media3 customizations
         if: inputs.custom == true
         shell: bash
