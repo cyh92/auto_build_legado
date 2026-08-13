@@ -319,7 +319,7 @@ jobs:
           ls release_aars/
 
       # 复制 AAR 到 ok-tv 仓库
-      - name: Clone → Copy AAR → Commit → Push to ok-tv
+      - name: 复制并推送到远程仓库${{inputs.update_branch}}分支
         if: ${{ inputs.copy_to_oktv == true }}
         run: |
           cd ..
@@ -337,8 +337,8 @@ jobs:
           git add -f app/libs/*.aar
           git commit -m "Auto update Media3 AARs (${{ steps.date.outputs.datetime }})"
           
-          # 推送到远程fm-new分支
-          git push origin fm-new
+          # 推送到远程${{inputs.update_branch}}分支
+          git push origin ${{inputs.update_branch}}
           
           echo "✅ AAR复制 + 提交 + 推送全部完成！"
 
