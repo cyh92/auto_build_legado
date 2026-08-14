@@ -15,11 +15,6 @@ on:
           description: '请输入要编译的分支名'
           required: true
           default: 'fm-new'
-        publishGitee:
-          description: '是否同步发布到 Gitee Release'
-          required: false
-          type: boolean
-          default: false
 
 jobs:
   build:
@@ -125,22 +120,8 @@ jobs:
         run: |
           echo "datetime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
           echo "show=$(date +%Y-%m-%d %H:%M:%S)" >> $GITHUB_OUTPUT
-      - name: 生成Release正文
-        id: release_meta
-        run: |
-          body_text=$(cat <<-EOT
-          ✅ 手动编译完成
-          📦 版本号：v${{ steps.version.outputs.version_name }}
-          🔐 已使用 fm-tv.jks 签名
-          🌿 分支：${{ github.event.inputs.branch }}
-          EOT
-                    )
-                    echo "body<<EOF" >> $GITHUB_OUTPUT
-                    echo "$body_text" >> $GITHUB_OUTPUT
-                    echo "EOF" >> $GITHUB_OUTPUT
-       shell: bash
-       
-      # 5. 上传（从 apks 目录读取，100% 成功）
+      
+     # 5. 上传（从 apks 目录读取，100% 成功）
       - name: 发布到 GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
@@ -149,7 +130,11 @@ jobs:
           name: |
             筱筱影视 v${{ steps.version.outputs.version_name }} 
             手动构建版-${{ steps.time.outputs.datetime }} ${{ inputs.add_suffix && '✅ 已加后缀' || '❌ 无后缀' }}
-          body: ${{ steps.release_meta.outputs.body }}
+          body: |
+            ✅ 手动编译完成
+            📦 版本号：v${{ steps.version.outputs.version_name }}
+            🔐 已使用 fm-tv.jks 签名
+            🌿 分支：${{ github.event.inputs.branch }}
           files: ${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
