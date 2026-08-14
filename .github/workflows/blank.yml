@@ -56,4 +56,4 @@ jobs:
           gitee_token: ${{ secrets.MY_GITEE_TOKEN }}
           gitee_release_id: ${{ steps.create_release.outputs.release-id }}
           gitee_files: |
-             README.md
+             media_aars/*.aar
