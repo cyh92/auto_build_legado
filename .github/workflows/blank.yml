@@ -33,3 +33,27 @@ jobs:
           gitee_release_body: Release 描述
           gitee_target_commitish: fongmi
           gitee_upload_retry_times: 3
+
+      - name: Create Release and Use Output
+        id: create_release
+        uses: nicennnnnnnlee/action-gitee-release@master
+        with:
+          gitee_action: create_release
+          gitee_owner: cyh92
+          gitee_repo: ok-tv
+          gitee_token: ${{ secrets.MY_GITEE_TOKEN }}
+          gitee_tag_name: v2.0.0
+          gitee_release_name: Test v2.0.0
+          gitee_release_body: Release 描述
+          gitee_target_commitish: fongmi
+
+      - name: Upload Additional Assets Using Release ID
+        uses: nicennnnnnnlee/action-gitee-release@master
+        with:
+          gitee_action: upload_asset
+          gitee_owner: cyh92
+          gitee_repo: ok-tv
+          gitee_token: ${{ secrets.MY_GITEE_TOKEN }}
+          gitee_release_id: ${{ steps.create_release.outputs.release-id }}
+          gitee_files: |
+             README.md
