@@ -120,8 +120,8 @@ jobs:
         run: |
           echo "datetime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
           echo "show=$(date +%Y-%m-%d %H:%M:%S)" >> $GITHUB_OUTPUT
-      
-     # 5. 上传（从 apks 目录读取，100% 成功）
+
+      # 5. 上传（从 apks 目录读取，100% 成功）
       - name: 发布到 GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
@@ -138,7 +138,3 @@ jobs:
           files: ${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            fi
-          done
-          echo "所有APK附件上传完成"
