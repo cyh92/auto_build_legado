@@ -56,13 +56,14 @@ jobs:
           repository: ${{ env.REPO_URL }}
           ref: ${{ inputs.target_branch }}
           fetch-depth: 1
+          path: media
           
       - name: Clone Gitee 代码
         if: inputs.repo_source == 'Gitee'
         run: |
           # 清空当前目录，避免 git clone . 报错目录非空
           rm -rf ./*
-          git clone -b ${{ inputs.target_branch }} --depth 1 https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/media.git .
+          git clone -b ${{ inputs.target_branch }} --depth 1 https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/media.git media
 
       # ====================== 替换 Gradle 下载源为腾讯云 ======================
       - name: Replace Gradle Distribution URL with Tencent Mirror
@@ -277,18 +278,22 @@ jobs:
           echo "Stub classes created:"
           find . -name "MpvPlayer.java" -o -name "MpvPlayerConfig.java" -o -name "DiskPreloadManager.java" -o -name "PlayerSeekView.java" | sort
                
-      - name: Grant execute permission
-        run: chmod +x gradlew
+      - name: 构建
+        working-directory: ./media
+        run: |
+         chmod +x gradlew
+         ./gradlew assembleRelease
 
-      - name: Build Release AAR
-        run: ./gradlew assembleRelease
+      # - name: Build Release AAR
+      #   run: ./gradlew assembleRelease
         
       - name: Get current date
         id: date
         run: echo "datetime=$(date +%Y%m%d%H%M%S%3N)" >> $GITHUB_OUTPUT
 
       # 只收集 move.txt 中列出的 AAR
-      - name: Collect only AAR in move.txt
+      - name: 通过move.txt列表收集aar
+        working-directory: ./media
         run: |
           mkdir -p release_aars
           if [ -f "move.txt" ]; then
@@ -317,6 +322,24 @@ jobs:
           # 收集完成后列出所有复制过来的aar文件
           echo "===== 已收集的AAR文件列表 ====="
           ls release_aars/
+
+          # ========== 新增：复制 release_aars 到工作根目录 ${GITHUB_WORKSPACE} ==========
+          echo "📤 将 release_aars 目录复制到 ${GITHUB_WORKSPACE}"
+          cp -r release_aars "${GITHUB_WORKSPACE}/"
+      - name: 提交release_aars变更到仓库
+        working-directory: ${{ github.workspace }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      
+          git add release_aars/
+          # 判断是否有变更
+          if git diff --cached --quiet; then
+            echo "ℹ️ release_aars 无文件变更，跳过提交推送"
+          else
+            git commit -m "🤖 自动更新收集的AAR包 release_aars"
+            git push
+          fi
 
       # 复制 AAR 到 ok-tv 仓库
       - name: 复制并推送到远程仓库${{inputs.update_branch}}分支
