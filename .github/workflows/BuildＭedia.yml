@@ -44,6 +44,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout 当前主仓库代码
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          
       - name: Checkout code
         if: inputs.repo_source == 'GitHub'
         uses: actions/checkout@v4
