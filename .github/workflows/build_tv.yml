@@ -15,6 +15,11 @@ on:
           description: '请输入要编译的分支名'
           required: true
           default: 'fm-new'
+        publishGitee:
+          description: '是否同步发布到 Gitee Release'
+          required: false
+          type: boolean
+          default: false
 
 jobs:
   build:
@@ -120,7 +125,18 @@ jobs:
         run: |
           echo "datetime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
           echo "show=$(date +%Y-%m-%d %H:%M:%S)" >> $GITHUB_OUTPUT
-
+      
+      - name: 组装Release正文
+        id: make_release_body
+        run: |
+          cat << 'MARKER' >> $GITHUB_OUTPUT
+          body<<MY_DELIMITER
+          ✅ 手动编译完成
+          📦 版本号：v${{ steps.version.outputs.version_name }}
+          🔐 已使用 fm-tv.jks 签名
+          🌿 分支：${{ github.event.inputs.branch }}
+          MY_DELIMITER
+          MARKER
       # 5. 上传（从 apks 目录读取，100% 成功）
       - name: 发布到 GitHub Releases
         uses: softprops/action-gh-release@v2
@@ -130,11 +146,36 @@ jobs:
           name: |
             筱筱影视 v${{ steps.version.outputs.version_name }} 
             手动构建版-${{ steps.time.outputs.datetime }} ${{ inputs.add_suffix && '✅ 已加后缀' || '❌ 无后缀' }}
-          body: |
-            ✅ 手动编译完成
-            📦 版本号：v${{ steps.version.outputs.version_name }}
-            🔐 已使用 fm-tv.jks 签名
-            🌿 分支：${{ github.event.inputs.branch }}
+          body: ${{ steps.make_release_body.outputs.body }}
           files: ${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          
+      - name: Create Release and Use Output
+        if: success() && github.event.inputs.publishGitee == 'true'
+        id: create_release
+        uses: nicennnnnnnlee/action-gitee-release@master
+        with:
+          gitee_action: create_release
+          gitee_owner: cyh92
+          gitee_repo: ok-tv
+          gitee_token: ${{ secrets.MY_GITEE_TOKEN }}
+          gitee_tag_name: build-${{ github.run_number }}-${{ steps.time.outputs.datetime }}
+          gitee_release_name: |
+            筱筱影视 v${{ steps.version.outputs.version_name }} 
+            手动构建版-${{ steps.time.outputs.datetime }} ${{ inputs.add_suffix && '✅ 已加后缀' || '❌ 无后缀' }}
+          gitee_release_body: ${{ steps.make_release_body.outputs.body }}
+          gitee_target_commitish: ${{ github.event.inputs.branch }}
+      
+      - name: Upload Additional Assets Using Release ID
+        if: success() && github.event.inputs.publishGitee == 'true'
+        uses: nicennnnnnnlee/action-gitee-release@master
+        with:
+          gitee_action: upload_asset
+          gitee_owner: cyh92
+          gitee_repo: ok-tv
+          gitee_token: ${{ secrets.MY_GITEE_TOKEN }}
+          gitee_release_id: ${{ steps.create_release.outputs.release-id }}
+          gitee_files: |
+             apks/*.apk
