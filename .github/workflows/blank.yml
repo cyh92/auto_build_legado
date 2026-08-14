@@ -18,7 +18,8 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
+      
+          
       # Runs a single command using the runners shell
       - name: Create Release with Multiple Files
         uses: nicennnnnnnlee/action-gitee-release@master
@@ -32,5 +33,5 @@ jobs:
           gitee_release_body: Release 描述
           gitee_target_commitish: fongmi
           gitee_upload_retry_times: 3
-          gitee_files: |
-            media_aar/*
+          gitee_file_name: 文件名称
+          gitee_file_path: media_aar/lib-common-release.aar
