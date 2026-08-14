@@ -1,4 +1,4 @@
-name: 编译 Media3
+name: 构建Media3_arrs
 
 # ======================= 【可修改变量】 =======================
 env:
@@ -28,11 +28,6 @@ on:
         type: string
       copy_to_oktv:
         description: '是否更新源仓库'
-        required: true
-        default: false
-        type: boolean
-      custom:
-        description: '添加自定义函数'
         required: true
         default: false
         type: boolean
@@ -99,185 +94,7 @@ jobs:
           sed '211,244d' build-logic-settings/src/main/kotlin/androidx/media3/buildlogic/Media3Modules.kt
           rm -rf demos
           rm -rf libraries/test*
-      - name: Inject stub classes for missing media3 customizations
-        if: inputs.custom == true
-        shell: bash
-        run: |
-          # FongMi/media public repo is missing custom classes that the app expects:
-          #   MpvPlayer, MpvPlayerConfig, DiskPreloadManager, PlayerSeekView
-          # Create minimal stubs so the AARs compile. isAvailable() returns false
-          # so the MPV code path is never used at runtime.
-          EXO=libraries/exoplayer/src/main/java
-          UI=libraries/ui/src/main/java
-          
-          mkdir -p "$EXO/androidx/media3/mpvplayer"
-          mkdir -p "$EXO/androidx/media3/exoplayer/source/preload"
-
-          cat > "$EXO/androidx/media3/mpvplayer/MpvPlayer.java" << 'STUB'
-          package androidx.media3.mpvplayer;
-
-          import android.content.Context;
-          import androidx.media3.common.ForwardingPlayer;
-          import androidx.media3.common.MediaItem;
-          import androidx.media3.exoplayer.SimpleExoPlayer;
-
-          public class MpvPlayer extends ForwardingPlayer {
-
-              public static boolean isAvailable() {
-                  return false;
-              }
-
-              private MpvPlayer(SimpleExoPlayer player) {
-                  super(player);
-              }
-
-              public void addSubtitle(MediaItem subtitle) {}
-
-              public void setDecode(int decode) {}
-
-              public void setSubtitleOptions(MpvPlayerConfig config) {}
-
-              public static class Builder {
-                  private final Context context;
-                  private int decode;
-                  private MpvPlayerConfig config;
-
-                  public Builder(Context context) {
-                      this.context = context;
-                  }
-
-                  public Builder setDecode(int decode) {
-                      this.decode = decode;
-                      return this;
-                  }
-
-                  public Builder setConfig(MpvPlayerConfig config) {
-                      this.config = config;
-                      return this;
-                  }
-
-                  public MpvPlayer build() {
-                      return new MpvPlayer(new SimpleExoPlayer.Builder(context).build());
-                  }
-              }
-          }
-          STUB
-
-          cat > "$EXO/androidx/media3/mpvplayer/MpvPlayerConfig.java" << 'STUB'
-          package androidx.media3.mpvplayer;
-
-          import android.content.Context;
-          import java.io.File;
-
-          public class MpvPlayerConfig {
-
-              public static final String VIDEO_OUTPUT_GPU_NEXT = "gpu-next";
-
-              private MpvPlayerConfig(Builder builder) {}
-
-              public static class Builder {
-                  public Builder() {}
-
-                  public Builder setDefaultUserAgent(String userAgent) { return this; }
-
-                  public Builder setHlsHttpPersistent(boolean enabled) { return this; }
-
-                  public Builder addConfigDirectory(File dir) { return this; }
-
-                  public Builder addAndroidFontConfig(File configDir, File cacheDir) { return this; }
-
-                  public Builder addAndroidDefaults(String videoOutput, File cacheDir) { return this; }
-
-                  public Builder addTlsCaFileFromAsset(Context context, String asset, String dest) { return this; }
-
-                  public Builder addPostInitStringOption(String key, String value) { return this; }
-
-                  public Builder addPreInitStringOption(String key, String value) { return this; }
-
-                  public Builder addDiskCacheOptions(File cacheDir, int timeSeconds, int sizeMb) { return this; }
-
-                  public Builder addAndroidSubtitleOptions(Context context, boolean caption, double position, double scale) { return this; }
-
-                  public MpvPlayerConfig build() {
-                      return new MpvPlayerConfig(this);
-                  }
-              }
-          }
-          STUB
-
-          cat > "$EXO/androidx/media3/exoplayer/source/preload/DiskPreloadManager.java" << 'STUB'
-          package androidx.media3.exoplayer.source.preload;
-
-          import androidx.media3.common.MediaItem;
-          import androidx.media3.common.PriorityTaskManager;
-          import androidx.media3.datasource.DataSource;
-          import androidx.media3.datasource.cache.Cache;
-          import androidx.media3.exoplayer.ExoPlayer;
-          import androidx.media3.exoplayer.RenderersFactory;
-
-          public class DiskPreloadManager {
-
-              public DiskPreloadManager() {}
-
-              public void start(ExoPlayer player, MediaItem mediaItem, Options options) {}
-
-              public void release() {}
-
-              public static class Builder {
-                  public Builder(Cache cache, DataSource.Factory dataSourceFactory, RenderersFactory renderersFactory) {}
-
-                  public Builder setPriorityTaskManager(PriorityTaskManager priorityTaskManager) {
-                      return this;
-                  }
-
-                  public DiskPreloadManager build() {
-                      return new DiskPreloadManager();
-                  }
-              }
-
-              public static class Options {
-                  public static Builder builder() {
-                      return new Builder();
-                  }
-
-                  public static class Builder {
-                      public Builder setDurationMs(long durationMs) { return this; }
-
-                      public Builder setMaxThreads(int maxThreads) { return this; }
-
-                      public Options build() {
-                          return new Options();
-                      }
-                  }
-              }
-          }
-          STUB
-
-          cat > "$UI/androidx/media3/ui/PlayerSeekView.java" << 'STUB'
-          package androidx.media3.ui;
-
-          import android.content.Context;
-          import android.util.AttributeSet;
-
-          public class PlayerSeekView extends PlayerView {
-
-              public PlayerSeekView(Context context) {
-                  super(context);
-              }
-
-              public PlayerSeekView(Context context, AttributeSet attrs) {
-                  super(context, attrs);
-              }
-
-              public PlayerSeekView(Context context, AttributeSet attrs, int defStyleAttr) {
-                  super(context, attrs, defStyleAttr);
-              }
-          }
-          STUB
-
-          echo "Stub classes created:"
-          find . -name "MpvPlayer.java" -o -name "MpvPlayerConfig.java" -o -name "DiskPreloadManager.java" -o -name "PlayerSeekView.java" | sort
-               
+        
       - name: 构建
         working-directory: ./media
         run: |
@@ -295,7 +112,7 @@ jobs:
       - name: 通过move.txt列表收集aar
         working-directory: ./media
         run: |
-          mkdir -p release_aars
+          mkdir -p media_aars
           if [ -f "move.txt" ]; then
            echo "✅ 检测到 move.txt，开始按列表收集"
             echo "=== move.txt 内容 ==="
@@ -313,31 +130,31 @@ jobs:
               # 先打印找到的文件路径，确认是否匹配到
               find ./libraries -name "$aar_name" -type f
               # 复制文件
-              find ./libraries -name "$aar_name" -type f -exec cp {} release_aars/ \;
+              find ./libraries -name "$aar_name" -type f -exec cp {} media_aars/ \;
             done < move.txt
           else
             echo "未找到 move.txt，递归复制 libraries 下所有AAR文件（不限层级）"
-            find ./libraries -name "*.aar" -type f -exec cp {} release_aars/ \;
+            find ./libraries -name "*.aar" -type f -exec cp {} media_aars/ \;
           fi
           # 收集完成后列出所有复制过来的aar文件
           echo "===== 已收集的AAR文件列表 ====="
-          ls release_aars/
+          ls media_aars/
 
-          # ========== 新增：复制 release_aars 到工作根目录 ${GITHUB_WORKSPACE} ==========
-          echo "📤 将 release_aars 目录复制到 ${GITHUB_WORKSPACE}"
-          cp -r release_aars "${GITHUB_WORKSPACE}/"
-      - name: 提交release_aars变更到仓库
+          # ========== 新增：复制 media_aars 到工作根目录 ${GITHUB_WORKSPACE} ==========
+          echo "📤 将 media_aars 目录复制到 ${GITHUB_WORKSPACE}"
+          cp -r media_aars "${GITHUB_WORKSPACE}/"
+      - name: 提交media_aars变更到仓库
         working-directory: ${{ github.workspace }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
       
-          git add release_aars/
+          git add media_aars/
           # 判断是否有变更
           if git diff --cached --quiet; then
-            echo "ℹ️ release_aars 无文件变更，跳过提交推送"
+            echo "ℹ️ media_aars 无文件变更，跳过提交推送"
           else
-            git commit -m "🤖 自动更新收集的AAR包 release_aars"
+            git commit -m "🤖 自动更新收集的AAR包 media_aars"
             git push
           fi
 
@@ -350,7 +167,7 @@ jobs:
           cd ok-tv-repo
           
           # 复制AAR
-          cp -f ${{ github.workspace }}/release_aars/*.aar app/libs/
+          cp -f ${{ github.workspace }}/media_aars/*.aar app/libs/
           
           # 配置Git
           git config user.name "GitHub Action"
@@ -368,7 +185,7 @@ jobs:
       # 打包 ZIP
       - name: Zip all AARs
         run: |
-          cd release_aars
+          cd media_aars
           zip -q -r Media3-AARs.zip *.aar
           mv Media3-AARs.zip ../
 
@@ -380,4 +197,4 @@ jobs:
           name: Release AAR Media3-${{ steps.date.outputs.datetime }}
           files: |
             Media3-AARs.zip
-            release_aars/*.aar
+            media_aars/*.aar
