@@ -15,6 +15,11 @@ on:
           description: '请输入要编译的分支名'
           required: true
           default: 'fm-new'
+        publishGitee:
+          description: '是否同步发布到 Gitee Release'
+          required: false
+          type: boolean
+          default: false
 
 jobs:
   build:
@@ -120,7 +125,21 @@ jobs:
         run: |
           echo "datetime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
           echo "show=$(date +%Y-%m-%d %H:%M:%S)" >> $GITHUB_OUTPUT
-
+      - name: 生成Release正文
+        id: release_meta
+        run: |
+          body_text=$(cat <<-EOT
+          ✅ 手动编译完成
+          📦 版本号：v${{ steps.version.outputs.version_name }}
+          🔐 已使用 fm-tv.jks 签名
+          🌿 分支：${{ github.event.inputs.branch }}
+          EOT
+                    )
+                    echo "body<<EOF" >> $GITHUB_OUTPUT
+                    echo "$body_text" >> $GITHUB_OUTPUT
+                    echo "EOF" >> $GITHUB_OUTPUT
+       shell: bash
+       
       # 5. 上传（从 apks 目录读取，100% 成功）
       - name: 发布到 GitHub Releases
         uses: softprops/action-gh-release@v2
@@ -130,11 +149,48 @@ jobs:
           name: |
             筱筱影视 v${{ steps.version.outputs.version_name }} 
             手动构建版-${{ steps.time.outputs.datetime }} ${{ inputs.add_suffix && '✅ 已加后缀' || '❌ 无后缀' }}
-          body: |
-            ✅ 手动编译完成
-            📦 版本号：v${{ steps.version.outputs.version_name }}
-            🔐 已使用 fm-tv.jks 签名
-            🌿 分支：${{ github.event.inputs.branch }}
+          body: ${{ steps.release_meta.outputs.body }}
           files: ${{ steps.apk.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      # ========== 发布Gitee Release（使用MY_GITEE_TOKEN） ==========
+      - name: 同步Tag并发布Gitee Release
+        if: success() && github.event.inputs.publishGitee == 'true'
+        env:
+          MY_GITEE_TOKEN: ${{ secrets.MY_GITEE_TOKEN }}
+          GITEE_REPO: cyh92/ok-tv
+          TAG_NAME: build-${{ github.run_number }}-${{ steps.time.outputs.datetime }}
+          RELEASE_TITLE: 筱筱影视 v${{ steps.version.outputs.version_name }}-${{ inputs.add_suffix && '✅ 已加后缀' || '❌ 无后缀' }}
+          APK_DIR:  ${{ github.workspace }}/apks
+          TARGET_BRANCH: ${{ github.event.inputs.branch }}
+        run: |
+          API_URL="https://gitee.com/api/v5/repos/cyh92/ok-tv/releases"
+          BODY=${{ steps.release_meta.outputs.body }}
+          
+          #CREATE_RES=$(curl -X POST --header 'Content-Type: application/json;charset=UTF-8' '${API_URL}' -d '{"access_token":"${{ secrets.MY_GITEE_TOKEN }}","tag_name":"${TAG_NAME}","name":"${RELEASE_TITLE}","body":"${BODY}","target_commitish":"${TARGET_BRANCH}"}')
+          CREATE_RES=$(curl -X POST -H "Content-Type: application/json;charset=UTF-8" "${API_URL}" -d "{\"access_token\":\"${{ secrets.MY_GITEE_TOKEN }}\",\"tag_name\":\"${TAG_NAME}\",\"name\":\"${RELEASE_TITLE}\",\"body\":\"${BODY}\",\"target_commitish\":\"${TARGET_BRANCH}\"}")
+          # 提取release id
+          RELEASE_ID=$(echo "$CREATE_RES" | jq -r '.id')
+          if [[ "$RELEASE_ID" == "null" || -z "$RELEASE_ID" ]]; then
+            echo "创建Gitee Release失败，返回：$CREATE_RES"
+            exit 1
+          fi
+          echo "Gitee Release 创建成功 ID: $RELEASE_ID"
+
+          # 3. 上传所有APK附件
+          for apk in ${APK_DIR}/*.apk; do
+            if [ -f "$apk" ]; then
+              echo "正在上传附件: $apk"             
+              curl -s -X POST \
+              -F "access_token=${MY_GITEE_TOKEN}" \
+              -F "owner=cyh92" \
+              -F "repo=ok-tv" \
+              -F "release_id=${RELEASE_ID}" \
+              -F "file=@$apk" \
+              "$API_URL/${RELEASE_ID}/attach_files"
+            echo "上传完成：$apk"
+            fi
+          done
+          echo "所有APK附件上传完成"
