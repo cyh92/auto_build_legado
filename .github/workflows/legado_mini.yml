@@ -65,6 +65,15 @@ jobs:
           echo "当前版本号: $version"
           sed -i "s/^def version = .*/def version = \"$version\"/" "$GITHUB_WORKSPACE/legado/app/build.gradle"
           cat $GITHUB_WORKSPACE/legado/app/build.gradle
+          
+      - name: 执行自定义注入脚本
+        env:
+          APP_WORKSPACE: ${{ github.workspace }}/legado
+          APP_LAUNCH_NAME: "筱筱自读"
+          SECRETS_RENAME: "true"
+        run: |
+          chmod +x .github/legado/legado_custom.sh
+          .github/legado/legado_custom.sh
 
       - name: 构建 Release APK
         working-directory: ./legado
