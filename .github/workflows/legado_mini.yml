@@ -67,6 +67,7 @@ jobs:
           cat $GITHUB_WORKSPACE/legado/app/build.gradle
           
       - name: 执行自定义注入脚本
+        if: contains(github.event.inputs.defaultUrl, 'LegadoTeam')
         env:
           APP_WORKSPACE: ${{ github.workspace }}/legado
           APP_LAUNCH_NAME: "筱筱自读"
