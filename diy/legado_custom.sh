@@ -1,19 +1,26 @@
 # 自定义名称
 function app_rename() {
-    # 目标strings.xml路径，根据你项目修正
-    local STRINGS_XML="${APP_WORKSPACE}/modules/android/src/main/res/values/strings.xml"
-    local NEW_APP_NAME="筱筱阅读"
+    if [ "${SECRETS_RENAME}" = "true" ]; then
+        debug "✏️ 修改 app_name 为 ${APP_LAUNCH_NAME}"
 
-    if [ ! -f "${STRINGS_XML}" ]; then
-        echo "⚠️ 文件不存在：${STRINGS_XML}"
-        return 1
+        local file_list=(
+            "${APP_WORKSPACE}/app/src/main/res/values/strings.xml"
+            "${APP_WORKSPACE}/app/src/main/res/values-zh/strings.xml"
+        )
+        for file in "${file_list[@]}"; do
+            if [ -f "${file}" ]; then
+                echo ">> 正在处理文件：${file}"
+                sed -i -E "s|<string name=\"app_name\">[^<]+</string>|<string name=\"app_name\">${APP_LAUNCH_NAME}</string>|g" "${file}"
+                if [ $? -eq 0 ]; then
+                    echo "✅ ${file} 更新成功"
+                else
+                    echo "⚠️ 更新失败: ${file}"
+                fi
+            else
+                echo ">> 文件不存在，跳过：${file}"
+            fi
+        done
     fi
-
-    echo "✏️ 开始替换 app_name 为：${NEW_APP_NAME}"
-    # sed 匹配 <string name="app_name">任意内容</string> 进行整体替换
-    sed -i -E "s|<string name=\"app_name\">[^<]+</string>|<string name=\"app_name\">${NEW_APP_NAME}</string>|g" "${STRINGS_XML}"
-
-    echo "✅ app名称替换完成"
 }
 # web端增加颜色选择器控件
 function append_global_component() {
