@@ -73,8 +73,8 @@ jobs:
           SECRETS_RENAME: "true"
         run: |
           ls
-          chmod +x "$GITHUB_WORKSPACE/.github/legado/script/legado_custom.sh"
-          "$GITHUB_WORKSPACE/.github/legado/script/legado_custom.sh"
+          chmod +x diy/legado_custom.sh
+          diy/legado_custom.sh
 
       - name: 构建 Release APK
         working-directory: ./legado
