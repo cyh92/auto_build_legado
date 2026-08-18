@@ -72,6 +72,7 @@ jobs:
           APP_LAUNCH_NAME: "筱筱自读"
           SECRETS_RENAME: "true"
         run: |
+          ls
           chmod +x "$GITHUB_WORKSPACE/.github/legado/legado_custom.sh"
           "$GITHUB_WORKSPACE/.github/legado/legado_custom.sh"
 
