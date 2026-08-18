@@ -72,8 +72,8 @@ jobs:
           APP_LAUNCH_NAME: "筱筱自读"
           SECRETS_RENAME: "true"
         run: |
-          chmod +x .github/legado/legado_custom.sh
-          .github/legado/legado_custom.sh
+          chmod +x "$GITHUB_WORKSPACE/.github/legado/legado_custom.sh"
+          "$GITHUB_WORKSPACE/.github/legado/legado_custom.sh"
 
       - name: 构建 Release APK
         working-directory: ./legado
