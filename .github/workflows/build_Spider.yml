@@ -2,6 +2,12 @@ name: 编译生成Spider Jar Gen CI
 
 on:
   workflow_dispatch:
+    inputs:
+      SyncGitee:
+          description: '是否同步Gitee仓库'
+          required: false
+          type: boolean
+          default: false
 
 jobs:
   build:
@@ -56,3 +62,19 @@ jobs:
             TVSpider/jar/*.md5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: 同步更新
+        if: success() && github.event.inputs.SyncGitee == 'true'
+       run: |
+           cd ..
+           git clone https://cyh92:${MY_GITEE_TOKEN}@gitee.com/cyh92/mybox.git
+           cp -f TVSpider/jar/*.jar mybox/jar/
+           cd mybox
+           git add .
+           # 判断是否有变更，无变更就跳过提交推送
+            if git diff --cached --quiet;then
+              echo "没有文件变更，跳过提交"
+            else
+              git commit -m "更新jar包 $(date '+%Y-%m-%d %H:%M:%S')"
+              git push
+            fi
