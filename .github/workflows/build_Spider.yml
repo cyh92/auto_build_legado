@@ -4,10 +4,10 @@ on:
  workflow_dispatch:
     inputs:
       SyncGitee:
-          description: '是否同步Gitee仓库'
-          required: false
-          type: boolean
-          default: false
+        description: '是否同步Gitee仓库'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
