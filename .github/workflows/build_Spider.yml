@@ -67,7 +67,7 @@ jobs:
         if: success() && github.event.inputs.SyncGitee == 'true'
         run: |
            cd ..
-           git clone https://cyh92:${MY_GITEE_TOKEN}@gitee.com/cyh92/mybox.git
+           git clone https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/mybox.git
            cp -f TVSpider/jar/*.jar mybox/jar/
            cd mybox
            git add .
