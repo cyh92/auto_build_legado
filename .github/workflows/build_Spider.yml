@@ -1,7 +1,7 @@
-name: 编译生成Spider Jar Gen CI
+name: 构建生成Spider Jar Gen CI
 
 on:
-  workflow_dispatch:
+ workflow_dispatch:
     inputs:
       SyncGitee:
           description: '是否同步Gitee仓库'
