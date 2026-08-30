@@ -16,8 +16,8 @@ jobs:
       contents: write  # 必须：发布 Release 权限
 
     steps:
-      - name: Checkout current repo
-        uses: actions/checkout@v4
+      #- name: Checkout current repo
+      #  uses: actions/checkout@v4
 
       # 1. 拉取 Gitee TVSpider
       - name: Clone TVSpider from Gitee
@@ -69,7 +69,8 @@ jobs:
         run: |
            git clone https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/mybox.git
            ls
-           cp -f TVSpider/jar/*.jar mybox/jar/
+           find TVSpider/jar -maxdepth 1 -type f -name "*.jar" -exec cp -f {} mybox/jar/ \;
+           
            cd mybox
            git add .
            # 判断是否有变更，无变更就跳过提交推送
