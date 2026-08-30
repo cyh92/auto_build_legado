@@ -72,6 +72,8 @@ jobs:
            find TVSpider/jar -maxdepth 1 -type f -name "*.jar" -exec cp -f {} mybox/jar/ \;
            
            cd mybox
+           git config user.name "cyh92"
+           git config user.email "cyh92@live.cn"
            git add .
            # 判断是否有变更，无变更就跳过提交推送
             if git diff --cached --quiet;then
