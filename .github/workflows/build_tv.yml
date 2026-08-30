@@ -169,7 +169,7 @@ jobs:
           gitee_target_commitish: ${{ github.event.inputs.branch }}
       
       - name: Upload Additional Assets Using Release ID
-        if: success() && github.event.inputs.publishGitee == 'true'
+        if: success() && github.event.inputs.publishGitee == 'xxxx'
         uses: nicennnnnnnlee/action-gitee-release@master
         with:
           gitee_action: upload_asset
