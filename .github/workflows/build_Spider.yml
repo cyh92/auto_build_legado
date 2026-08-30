@@ -33,6 +33,7 @@ jobs:
 
       # 构建 APK + Jar
       - name: Build with Gradle
+        if: github.event.inputs.SyncGitee == 'false'
         run: |
           cd TVSpider
           chmod +x gradlew
@@ -68,6 +69,7 @@ jobs:
         run: |
            cd ..
            git clone https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/mybox.git
+           ls
            cp -f TVSpider/jar/*.jar mybox/jar/
            cd mybox
            git add .
