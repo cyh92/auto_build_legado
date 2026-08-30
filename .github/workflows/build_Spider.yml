@@ -33,7 +33,6 @@ jobs:
 
       # 构建 APK + Jar
       - name: Build with Gradle
-        if: github.event.inputs.SyncGitee == 'false'
         run: |
           cd TVSpider
           chmod +x gradlew
