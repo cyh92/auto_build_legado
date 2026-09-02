@@ -33,8 +33,12 @@ jobs:
         uses: actions/checkout@v4
           # 1. 直接用 git clone 拉取 Gitee 仓库（彻底修复来源问题）
       - name: 克隆 Gitee ok-tv 代码 (${{ github.event.inputs.branch }} 分支)
-        run: |
-          git clone -b ${{ github.event.inputs.branch }} ${{ github.event.inputs.url }} ok-tv
+        uses: nick-in-action/retry@v3
+        with:
+          with:
+          max-attempts: 3
+          delay-seconds: 30
+          command: git clone --depth 1 -b ${{ github.event.inputs.branch }} ${{ github.event.inputs.url }} ok-tv
 
       # 2. 设置 JDK 17
       - name: 设置 JDK 17
