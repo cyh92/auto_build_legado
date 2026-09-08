@@ -68,7 +68,7 @@ jobs:
         run: |
            git clone https://cyh92:${{ secrets.MY_GITEE_TOKEN }}@gitee.com/cyh92/mybox.git
            ls
-           find TVSpider/jar -maxdepth 1 -type f -name "*.jar" -exec cp -f {} mybox/jar/ \;
+           find TVSpider/jar -maxdepth 1 -type f -name "*.jar" -exec cp -f {} mybox/spider/jar/ \;
            
            cd mybox
            git config user.name "cyh92"
